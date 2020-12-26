@@ -17,6 +17,7 @@ function AZP.IU.VersionControl:ManaGement()
     return AZPIUManaGementVersion
 end
 
+
 function AZP.IU.OnLoad:ManaGement(self)
     ModuleStats["Frames"]["ManaGement"]:SetSize(200, 100)
     InstanceUtilityAddonFrame:RegisterEvent("UNIT_POWER_UPDATE")
@@ -87,6 +88,19 @@ function addonMain:TrackMana()
     end
 end
 
+function addonMain:OrderManaBars()
+    table.sort(raidHealers, function(a, b) 
+        local percentA = math.floor(UnitPower(a[5], 0)/a[4]*100)
+        local percentB = math.floor(UnitPower(b[5], 0)/b[4]*100)
+        
+        return percentA > percentB
+    end)
+
+    for i=1,#raidHealers do
+        raidHealers[i][6]:SetPoint("CENTER", 0, -25*i)
+    end
+end
+
 function addonMain:ResetManaBars()
     if raidHealers ~= nil then
         for i=1,#raidHealers do
@@ -143,6 +157,7 @@ function AZP.IU.OnEvent:ManaGement(event, ...)
         if powerID == "MANA" then
             if UnitGroupRolesAssigned(unitID) == "HEALER" then
                 addonMain:TrackMana()
+                addonMain:OrderManaBars()
             end
         end
     elseif event == "GROUP_ROSTER_UPDATE" then
