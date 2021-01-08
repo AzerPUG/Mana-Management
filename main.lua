@@ -1,6 +1,6 @@
 local GlobalAddonName, AIU = ...
 
-local AZPIUManaGementVersion = 1
+local AZPIUManaGementVersion = 2
 local dash = " - "
 local name = "InstanceUtility" .. dash .. "ManaGement"
 local nameFull = ("AzerPUG " .. name)
@@ -20,6 +20,7 @@ end
 
 function AZP.IU.OnLoad:ManaGement(self)
     ModuleStats["Frames"]["ManaGement"]:SetSize(200, 100)
+    addonMain:ChangeOptionsText()
     InstanceUtilityAddonFrame:RegisterEvent("UNIT_POWER_UPDATE")
     InstanceUtilityAddonFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
@@ -176,4 +177,13 @@ function addonMain:ChangeOptionsText()
     ManaGementSubPanelHeader:SetWidth(ManaGementSubPanel:GetWidth())
     ManaGementSubPanelHeader:SetHeight(ManaGementSubPanel:GetHeight())
     ManaGementSubPanelHeader:SetPoint("TOP", 0, -10)
+
+    local ManaGementSubPanelText = ManaGementSubPanel:CreateFontString("ManaGementSubPanelText", "ARTWORK", "GameFontNormalLarge")
+    ManaGementSubPanelText:SetWidth(ManaGementSubPanel:GetWidth())
+    ManaGementSubPanelText:SetHeight(ManaGementSubPanel:GetHeight())
+    ManaGementSubPanelText:SetPoint("TOPLEFT", 0, -50)
+    ManaGementSubPanelText:SetText(
+        "AzerPUG-GameUtility-ManaGement does not have options yet.\n" ..
+        "For feature requests visit our Discord Server!"
+    )
 end
