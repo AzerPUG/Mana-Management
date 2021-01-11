@@ -1,6 +1,6 @@
 local GlobalAddonName, AIU = ...
 
-local AZPIUManaGementVersion = 3
+local AZPIUManaGementVersion = 4
 local dash = " - "
 local name = "InstanceUtility" .. dash .. "ManaGement"
 local nameFull = ("AzerPUG " .. name)
@@ -27,21 +27,25 @@ function AZP.IU.OnLoad:ManaGement(self)
     AZPManaGementFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
     AZPManaGementFrame:SetWidth("200")
     AZPManaGementFrame:SetHeight("50")
-    AZPManaGementFrame:SetPoint("CENTER", -300, 200)
+    if ManaGementLocation == nil then
+        AZPManaGementFrame:SetPoint("CENTER", -300, 200)
+    else
+        AZPManaGementFrame:SetPoint(ManaGementLocation[1], ManaGementLocation[2], ManaGementLocation[3])
+    end
     AZPManaGementFrame:SetScript("OnDragStart", AZPManaGementFrame.StartMoving)
     AZPManaGementFrame:SetScript("OnDragStop", AZPManaGementFrame.StopMovingOrSizing)
 
     local AZPGVButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaGement"], "UIPanelButtonTemplate")
     AZPGVButton.contentText = AZPGVButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    AZPGVButton.contentText:SetText("Move Mana Bars!")
+    AZPGVButton.contentText:SetText("Toggle Bar Movement!")
     AZPGVButton:SetWidth("100")
     AZPGVButton:SetHeight("25")
     AZPGVButton.contentText:SetWidth("100")
     AZPGVButton.contentText:SetHeight("15")
     AZPGVButton:SetPoint("TOPLEFT", 25, -10)
     AZPGVButton.contentText:SetPoint("CENTER", 0, -1)
-    AZPGVButton:SetScript("OnClick", 
-    function() 
+    AZPGVButton:SetScript("OnClick",
+    function()
         if moveable == false then
             AZPManaGementFrame:SetMovable(true)
             AZPManaGementFrame:EnableMouse(true)
@@ -65,6 +69,8 @@ function AZP.IU.OnLoad:ManaGement(self)
                 insets = { left = 1, right = 1, top = 1, bottom = 1 },
             })
             AZPManaGementFrame:SetBackdropColor(0, 0, 0, 0)
+            local x1, x2, x3, x4, x5 = AZPManaGementFrame:GetPoint()
+            ManaGementLocation = {x1, x4, x5}
             moveable = false
         end
     end)

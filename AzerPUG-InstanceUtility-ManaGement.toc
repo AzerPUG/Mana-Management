@@ -4,5 +4,6 @@
 ## Dependencies: AzerPUG-InstanceUtility-Core 
 ## Notes: Utility for Instances (Raids and Dungeons)!
 ## Version: SL 9.0.2 (For actual addon version, check main.lua)
+## SavedVariables: ManaGementLocation
 
 main.lua
