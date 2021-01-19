@@ -108,6 +108,14 @@ function addonMain:OrderManaBars()
     end
 end
 
+
+function SetScaleTest(scale)
+    for i=1,#raidHealers do
+        raidHealers[i][6]:SetScale(scale)
+    end
+end
+
+
 function addonMain:ResetManaBars()
     if raidHealers ~= nil then
         for i=1,#raidHealers do
