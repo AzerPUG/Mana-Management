@@ -1,6 +1,6 @@
 local GlobalAddonName, AIU = ...
 
-local AZPIUManaGementVersion = 4
+local AZPIUManaGementVersion = 5
 local dash = " - "
 local name = "InstanceUtility" .. dash .. "ManaGement"
 local nameFull = ("AzerPUG " .. name)
@@ -76,22 +76,14 @@ function AZP.IU.OnLoad:ManaGement(self)
     end)
 
     addonMain:ResetManaBars()
-
-    -- Change so that not current power but MANA is tracked.
-    -- Add boss, if boss encounter.
-    -- Update list to be ordered based on % HealerMana / BossHealth.
-    -- Add Class Colors.
-    -- Progression bar changes color based on %.
-        -- Within 0 - 5% of boss health == Green.
-        -- Within 5 - 10% of boss health == Yellow.
-        -- Outisde of 10% of boss health == Red.
-    -- Make healer mana % to boss health change color GRADIENT! (multiply % with RGB number).
 end
 
 function addonMain:TrackMana()
     for i=1,#raidHealers do
         raidHealers[i][6]:SetValue(UnitPower(raidHealers[i][5], 0))
         raidHealers[i][6].manaPercentText:SetText(math.floor(UnitPower(raidHealers[i][5], 0)/raidHealers[i][4]*100) .. "%")
+
+        raidHealers[i][6].healerNameText:SetTextColor(addonMain:GetClassColor(raidHealers[i][2]))
     end
 end
 
@@ -99,7 +91,7 @@ function addonMain:OrderManaBars()
     table.sort(raidHealers, function(a, b) 
         local percentA = math.floor(UnitPower(a[5], 0)/a[4]*100)
         local percentB = math.floor(UnitPower(b[5], 0)/b[4]*100)
-        
+
         return percentA > percentB
     end)
 
@@ -155,6 +147,23 @@ function addonMain:ResetManaBars()
         raidHealers[i][6].healerNameText:SetJustifyH("LEFT")
         raidHealers[i][6].healerNameText:SetSize(150, 20)
         raidHealers[i][6]:SetStatusBarColor(0, 0.75, 1)
+    end
+end
+
+function addonMain:GetClassColor(classIndex)
+    if classIndex ==  0 then return 0.00, 0.00, 0.00          -- None
+    elseif classIndex ==  1 then return 0.78, 0.61, 0.43      -- Warrior
+    elseif classIndex ==  2 then return 0.96, 0.55, 0.73      -- Paladin
+    elseif classIndex ==  3 then return 0.67, 0.83, 0.45      -- Hunter
+    elseif classIndex ==  4 then return 1.00, 0.96, 0.41      -- Rogue
+    elseif classIndex ==  5 then return 1.00, 1.00, 1.00      -- Priest
+    elseif classIndex ==  6 then return 0.77, 0.12, 0.23      -- Death Knight
+    elseif classIndex ==  7 then return 0.00, 0.44, 0.87      -- Shaman
+    elseif classIndex ==  8 then return 0.25, 0.78, 0.92      -- Mage
+    elseif classIndex ==  9 then return 0.53, 0.53, 0.93      -- Warlock
+    elseif classIndex == 10 then return 0.00, 1.00, 0.60      -- Monk
+    elseif classIndex == 11 then return 1.00, 0.49, 0.04      -- Druid
+    elseif classIndex == 12 then return 0.64, 0.19, 0.79      -- Demon Hunter
     end
 end
 
