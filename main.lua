@@ -201,7 +201,6 @@ function addonMain:ChangeOptionsText()
     ManaGementSubPanelText:SetHeight(ManaGementSubPanel:GetHeight())
     ManaGementSubPanelText:SetPoint("TOPLEFT", 0, -50)
     ManaGementSubPanelText:SetText(
-        "AzerPUG-GameUtility-ManaGement does not have options yet.\n" ..
         "For feature requests visit our Discord Server!"
     )
     
@@ -209,7 +208,7 @@ function addonMain:ChangeOptionsText()
     ManaGementScaleSlider:SetHeight(20)
     ManaGementScaleSlider:SetWidth(500)
     ManaGementScaleSlider:SetOrientation('HORIZONTAL')
-    ManaGementScaleSlider:SetPoint("CENTER")
+    ManaGementScaleSlider:SetPoint("TOP", 0, -100)
     ManaGementScaleSlider:EnableMouse(true)
     ManaGementScaleSlider.tooltipText = 'Scale for mana bars'
     ManaGementScaleSliderLow:SetText('small')
