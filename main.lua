@@ -18,6 +18,11 @@ function AZP.IU.VersionControl:ManaGement()
 end
 
 function AZP.IU.OnLoad:ManaGement(self)
+    -- Default scale, 1.
+    if ManaGementScale == nil then
+        ManaGementScale = 1.0
+    end
+
     ModuleStats["Frames"]["ManaGement"]:SetSize(200, 100)
     addonMain:ChangeOptionsText()
     InstanceUtilityAddonFrame:RegisterEvent("UNIT_POWER_UPDATE")
@@ -108,7 +113,7 @@ function addonMain:OrderManaBars()
 end
 
 function addonMain:setScale(scale)
-    print("Scale is now %d", scale) -- TODO Remove
+    ManaGementScale = scale
     for i=1,#raidHealers do
         raidHealers[i][6]:SetScale(scale)
     end
@@ -147,6 +152,7 @@ function addonMain:ResetManaBars()
         raidHealers[i][6]:SetMinMaxValues(0, raidHealers[i][4])
         raidHealers[i][6]:SetValue(raidHealers[i][3])
         raidHealers[i][6]:SetPoint("CENTER", 0, -25*i)
+        raidHealers[i][6]:SetScale(ManaGementScale)
         raidHealers[i][6].bg = raidHealers[i][6]:CreateTexture(nil, "BACKGROUND")
         raidHealers[i][6].bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
         raidHealers[i][6].bg:SetAllPoints(true)
@@ -213,7 +219,7 @@ function addonMain:ChangeOptionsText()
     ManaGementScaleSlider:Show()
     ManaGementScaleSlider:SetMinMaxValues(0.5, 2)
     ManaGementScaleSlider:SetValueStep(0.1)
-    ManaGementScaleSlider:SetValue(1)
+    ManaGementScaleSlider:SetValue(ManaGementScale)
 
     ManaGementScaleSlider:SetScript("OnValueChanged", addonMain.setScale)
 end
