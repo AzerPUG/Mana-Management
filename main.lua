@@ -17,7 +17,6 @@ function AZP.IU.VersionControl:ManaGement()
     return AZPIUManaGementVersion
 end
 
-
 function AZP.IU.OnLoad:ManaGement(self)
     ModuleStats["Frames"]["ManaGement"]:SetSize(200, 100)
     addonMain:ChangeOptionsText()
@@ -108,13 +107,12 @@ function addonMain:OrderManaBars()
     end
 end
 
-
-function SetScaleTest(scale)
+function addonMain:setScale(scale)
+    print("Scale is now %d", scale) -- TODO Remove
     for i=1,#raidHealers do
         raidHealers[i][6]:SetScale(scale)
     end
 end
-
 
 function addonMain:ResetManaBars()
     if raidHealers ~= nil then
@@ -200,4 +198,22 @@ function addonMain:ChangeOptionsText()
         "AzerPUG-GameUtility-ManaGement does not have options yet.\n" ..
         "For feature requests visit our Discord Server!"
     )
+    
+    local ManaGementScaleSlider = CreateFrame("SLIDER", "ManaGementScaleSlider", ManaGementSubPanel, "OptionsSliderTemplate")
+    ManaGementScaleSlider:SetHeight(20)
+    ManaGementScaleSlider:SetWidth(500)
+    ManaGementScaleSlider:SetOrientation('HORIZONTAL')
+    ManaGementScaleSlider:SetPoint("CENTER")
+    ManaGementScaleSlider:EnableMouse(true)
+    ManaGementScaleSlider.tooltipText = 'Scale for mana bars'
+    ManaGementScaleSliderLow:SetText('small')
+    ManaGementScaleSliderHigh:SetText('big')
+    ManaGementScaleSliderText:SetText('Scale')
+
+    ManaGementScaleSlider:Show()
+    ManaGementScaleSlider:SetMinMaxValues(0.5, 2)
+    ManaGementScaleSlider:SetValueStep(0.1)
+    ManaGementScaleSlider:SetValue(1)
+
+    ManaGementScaleSlider:SetScript("OnValueChanged", addonMain.setScale)
 end
