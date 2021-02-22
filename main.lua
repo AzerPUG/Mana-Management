@@ -1,6 +1,6 @@
 local GlobalAddonName, AIU = ...
 
-local AZPIUManaGementVersion = 6
+local AZPIUManaGementVersion = 7
 local dash = " - "
 local name = "InstanceUtility" .. dash .. "ManaGement"
 local nameFull = ("AzerPUG " .. name)
@@ -36,16 +36,39 @@ function AZP.IU.OnLoad:ManaGement(self)
     AZPManaGementFrame:SetScript("OnDragStart", AZPManaGementFrame.StartMoving)
     AZPManaGementFrame:SetScript("OnDragStop", AZPManaGementFrame.StopMovingOrSizing)
 
-    local AZPGVButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaGement"], "UIPanelButtonTemplate")
-    AZPGVButton.contentText = AZPGVButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    AZPGVButton.contentText:SetText("Toggle Bar Movement!")
-    AZPGVButton:SetWidth("100")
-    AZPGVButton:SetHeight("25")
-    AZPGVButton.contentText:SetWidth("100")
-    AZPGVButton.contentText:SetHeight("15")
-    AZPGVButton:SetPoint("TOPLEFT", 25, -10)
-    AZPGVButton.contentText:SetPoint("CENTER", 0, -1)
-    AZPGVButton:SetScript("OnClick",
+    local AZPMGShowHideButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaGement"], "UIPanelButtonTemplate")
+    AZPMGShowHideButton.contentText = AZPMGShowHideButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    if AZPManaGementFrame:IsShown() then
+        AZPMGShowHideButton.contentText:SetText("Hide")
+    else
+        AZPMGShowHideButton.contentText:SetText("Show")
+    end
+    AZPMGShowHideButton:SetWidth("100")
+    AZPMGShowHideButton:SetHeight("25")
+    AZPMGShowHideButton.contentText:SetWidth("100")
+    AZPMGShowHideButton.contentText:SetHeight("15")
+    AZPMGShowHideButton:SetPoint("TOPLEFT", 25, -35)
+    AZPMGShowHideButton.contentText:SetPoint("CENTER", 0, -1)
+    AZPMGShowHideButton:SetScript("OnClick", function()
+        if AZPManaGementFrame:IsShown() then
+            AZPManaGementFrame:Hide()
+            AZPMGShowHideButton.contentText:SetText("Show")
+        else
+            AZPManaGementFrame:Show()
+            AZPMGShowHideButton.contentText:SetText("Hide")
+        end
+    end )
+    
+    local AZPMGToggleMoveButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaGement"], "UIPanelButtonTemplate")
+    AZPMGToggleMoveButton.contentText = AZPMGToggleMoveButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    AZPMGToggleMoveButton.contentText:SetText("Toggle Movement!")
+    AZPMGToggleMoveButton:SetWidth("100")
+    AZPMGToggleMoveButton:SetHeight("25")
+    AZPMGToggleMoveButton.contentText:SetWidth("100")
+    AZPMGToggleMoveButton.contentText:SetHeight("15")
+    AZPMGToggleMoveButton:SetPoint("TOPLEFT", 25, -10)
+    AZPMGToggleMoveButton.contentText:SetPoint("CENTER", 0, -1)
+    AZPMGToggleMoveButton:SetScript("OnClick",
     function()
         if moveable == false then
             AZPManaGementFrame:SetMovable(true)
