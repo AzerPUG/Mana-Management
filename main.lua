@@ -18,8 +18,12 @@ function AZP.IU.VersionControl:ManaGement()
     return AZPIUManaGementVersion
 end
 
-
 function AZP.IU.OnLoad:ManaGement(self)
+    -- Default scale, 1.
+    if ManaGementScale == nil then
+        ManaGementScale = 1.0
+    end
+
     ModuleStats["Frames"]["ManaGement"]:SetSize(200, 100)
     addonMain:ChangeOptionsText()
     InstanceUtilityAddonFrame:RegisterEvent("UNIT_POWER_UPDATE")
@@ -166,6 +170,13 @@ function addonMain:OrderManaBars()
     end
 end
 
+function addonMain:setScale(scale)
+    ManaGementScale = scale
+    for i=1,#raidHealers do
+        raidHealers[i][6]:SetScale(scale)
+    end
+end
+
 function addonMain:ResetManaBars()
     if raidHealers ~= nil then
         for i=1,#raidHealers do
@@ -199,6 +210,7 @@ function addonMain:ResetManaBars()
         raidHealers[i][6]:SetMinMaxValues(0, raidHealers[i][4])
         raidHealers[i][6]:SetValue(raidHealers[i][3])
         raidHealers[i][6]:SetPoint("CENTER", 0, -25*i-25)
+        raidHealers[i][6]:SetScale(ManaGementScale)
         raidHealers[i][6].bg = raidHealers[i][6]:CreateTexture(nil, "BACKGROUND")
         raidHealers[i][6].bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
         raidHealers[i][6].bg:SetAllPoints(true)
@@ -264,7 +276,24 @@ function addonMain:ChangeOptionsText()
     ManaGementSubPanelText:SetHeight(ManaGementSubPanel:GetHeight())
     ManaGementSubPanelText:SetPoint("TOPLEFT", 0, -50)
     ManaGementSubPanelText:SetText(
-        "AzerPUG-GameUtility-ManaGement does not have options yet.\n" ..
         "For feature requests visit our Discord Server!"
     )
+    
+    local ManaGementScaleSlider = CreateFrame("SLIDER", "ManaGementScaleSlider", ManaGementSubPanel, "OptionsSliderTemplate")
+    ManaGementScaleSlider:SetHeight(20)
+    ManaGementScaleSlider:SetWidth(500)
+    ManaGementScaleSlider:SetOrientation('HORIZONTAL')
+    ManaGementScaleSlider:SetPoint("TOP", 0, -100)
+    ManaGementScaleSlider:EnableMouse(true)
+    ManaGementScaleSlider.tooltipText = 'Scale for mana bars'
+    ManaGementScaleSliderLow:SetText('small')
+    ManaGementScaleSliderHigh:SetText('big')
+    ManaGementScaleSliderText:SetText('Scale')
+
+    ManaGementScaleSlider:Show()
+    ManaGementScaleSlider:SetMinMaxValues(0.5, 2)
+    ManaGementScaleSlider:SetValueStep(0.1)
+    ManaGementScaleSlider:SetValue(ManaGementScale)
+
+    ManaGementScaleSlider:SetScript("OnValueChanged", addonMain.setScale)
 end
