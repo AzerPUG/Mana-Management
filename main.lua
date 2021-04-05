@@ -123,6 +123,8 @@ function AZP.IU.OnLoad:ManaGement(self)
     bossHealthBar.bossNameText:SetJustifyH("LEFT")
     bossHealthBar.bossNameText:SetSize(150, 20)
     bossHealthBar:SetStatusBarColor(0, 0.75, 1)
+    bossHealthBar:SetScale(ManaGementScale)
+
 
 
     addonMain:ResetManaBars()
@@ -175,6 +177,7 @@ function addonMain:setScale(scale)
     for i=1,#raidHealers do
         raidHealers[i][6]:SetScale(scale)
     end
+    bossHealthBar:SetScale(scale)
 end
 
 function addonMain:ResetManaBars()
