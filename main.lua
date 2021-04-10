@@ -1,6 +1,12 @@
-local GlobalAddonName, AIU = ...
+if AZP == nil then AZP = {} end
+if AZP.VersionControl == nil then AZP.VersionControl = {} end
+if AZP.OnLoad == nil then AZP.OnLoad = {} end
+if AZP.OnEvent == nil then AZP.OnEvent = {} end
+if AZP.OnEvent == nil then AZP.OnEvent = {} end
 
-local AZPIUManaGementVersion = 8
+AZP.VersionControl.ManaManagement = 8
+AZP.ManaManagement = {}
+
 local dash = " - "
 local name = "InstanceUtility" .. dash .. "ManaGement"
 local nameFull = ("AzerPUG " .. name)
@@ -119,7 +125,6 @@ function AZP.IU.OnLoad:ManaGement(self)
     bossHealthBar.bossNameText:SetJustifyH("LEFT")
     bossHealthBar.bossNameText:SetSize(150, 20)
     bossHealthBar:SetStatusBarColor(0, 0.75, 1)
-
 
     addonMain:ResetManaBars()
 end
