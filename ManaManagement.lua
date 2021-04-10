@@ -8,26 +8,24 @@ AZP.VersionControl.ManaManagement = 8
 AZP.ManaManagement = {}
 
 local dash = " - "
-local name = "InstanceUtility" .. dash .. "ManaGement"
+local name = "Mana Management"
 local nameFull = ("AzerPUG " .. name)
 local promo = (nameFull .. dash ..  AZPIUManaGementVersion)
 
-local addonMain = LibStub("AceAddon-3.0"):NewAddon("InstanceUtility-ManaGement", "AceConsole-3.0")
-
-local ModuleStats = AZP.IU.ModuleStats
+local ModuleStats = AZP.Core.ModuleStats        -- Change to direct call!
 
 local moveable = false
 local raidHealers
 local bossHealthBar
 
-function AZP.IU.VersionControl:ManaGement()
+function AZP.VersionControl:ManaManagement()
     return AZPIUManaGementVersion
 end
 
 
-function AZP.IU.OnLoad:ManaGement(self)
-    ModuleStats["Frames"]["ManaGement"]:SetSize(200, 100)
-    addonMain:ChangeOptionsText()
+function AZP.OnLoad:ManaManagement(self)
+    ModuleStats["Frames"]["ManaManagement"]:SetSize(200, 100)
+    AZP.ManaManagement:ChangeOptionsText()
     InstanceUtilityAddonFrame:RegisterEvent("UNIT_POWER_UPDATE")
     InstanceUtilityAddonFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
@@ -42,7 +40,7 @@ function AZP.IU.OnLoad:ManaGement(self)
     AZPManaGementFrame:SetScript("OnDragStart", AZPManaGementFrame.StartMoving)
     AZPManaGementFrame:SetScript("OnDragStop", AZPManaGementFrame.StopMovingOrSizing)
 
-    local AZPMGShowHideButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaGement"], "UIPanelButtonTemplate")
+    local AZPMGShowHideButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaManagement"], "UIPanelButtonTemplate")
     AZPMGShowHideButton.contentText = AZPMGShowHideButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     if AZPManaGementFrame:IsShown() then
         AZPMGShowHideButton.contentText:SetText("Hide")
@@ -64,8 +62,8 @@ function AZP.IU.OnLoad:ManaGement(self)
             AZPMGShowHideButton.contentText:SetText("Hide")
         end
     end )
-    
-    local AZPMGToggleMoveButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaGement"], "UIPanelButtonTemplate")
+
+    local AZPMGToggleMoveButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaManagement"], "UIPanelButtonTemplate")
     AZPMGToggleMoveButton.contentText = AZPMGToggleMoveButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     AZPMGToggleMoveButton.contentText:SetText("Toggle Movement!")
     AZPMGToggleMoveButton:SetWidth("100")
@@ -126,10 +124,10 @@ function AZP.IU.OnLoad:ManaGement(self)
     bossHealthBar.bossNameText:SetSize(150, 20)
     bossHealthBar:SetStatusBarColor(0, 0.75, 1)
 
-    addonMain:ResetManaBars()
+    AZP.ManaManagement:ResetManaBars()
 end
 
-function addonMain:TrackMana()
+function AZP.ManaManagement:TrackMana()
     local bossName = UnitName("boss1")
     local bossMaxHealth = UnitHealthMax("boss1")
     local bossCurrentHealth = UnitHealth("boss1")
@@ -150,15 +148,15 @@ function addonMain:TrackMana()
         raidHealers[i][6]:SetValue(UnitPower(raidHealers[i][5], 0))
         raidHealers[i][6].manaPercentText:SetText(math.floor(UnitPower(raidHealers[i][5], 0)/raidHealers[i][4]*100) .. "%")
 
-        raidHealers[i][6].healerNameText:SetTextColor(addonMain:GetClassColor(raidHealers[i][2]))
+        raidHealers[i][6].healerNameText:SetTextColor(AZP.ManaManagement:GetClassColor(raidHealers[i][2]))
     end
 end
 
-function addonMain:CalcPercent()
+function AZP.ManaManagement:CalcPercent()
 
 end
 
-function addonMain:OrderManaBars()
+function AZP.ManaManagement:OrderManaBars()
     table.sort(raidHealers, function(a, b)
         local percentA = math.floor(UnitPower(a[5], 0)/a[4]*100)
         local percentB = math.floor(UnitPower(b[5], 0)/b[4]*100)
@@ -171,7 +169,7 @@ function addonMain:OrderManaBars()
     end
 end
 
-function addonMain:ResetManaBars()
+function AZP.ManaManagement:ResetManaBars()
     if raidHealers ~= nil then
         for i=1,#raidHealers do
             raidHealers[i][6].contentText = nil
@@ -221,7 +219,7 @@ function addonMain:ResetManaBars()
     end
 end
 
-function addonMain:GetClassColor(classIndex)
+function AZP.ManaManagement:GetClassColor(classIndex)
     if classIndex ==  0 then return 0.00, 0.00, 0.00          -- None
     elseif classIndex ==  1 then return 0.78, 0.61, 0.43      -- Warrior
     elseif classIndex ==  2 then return 0.96, 0.55, 0.73      -- Paladin
@@ -238,21 +236,21 @@ function addonMain:GetClassColor(classIndex)
     end
 end
 
-function AZP.IU.OnEvent:ManaGement(event, ...)
+function AZP.OnEvent:ManaManagement(event, ...)
     if event == "UNIT_POWER_UPDATE" then
         local unitID, powerID = ...
         if powerID == "MANA" then
             if UnitGroupRolesAssigned(unitID) == "HEALER" then
-                addonMain:TrackMana()
-                addonMain:OrderManaBars()
+                AZP.ManaManagement:TrackMana()
+                AZP.ManaManagement:OrderManaBars()
             end
         end
     elseif event == "GROUP_ROSTER_UPDATE" then
-        addonMain:ResetManaBars()
+        AZP.ManaManagement:ResetManaBars()
     end
 end
 
-function addonMain:ChangeOptionsText()
+function AZP.ManaManagement:ChangeOptionsText()
     ManaGementSubPanelPHTitle:Hide()
     ManaGementSubPanelPHText:Hide()
     ManaGementSubPanelPHTitle:SetParent(nil)
@@ -269,7 +267,7 @@ function addonMain:ChangeOptionsText()
     ManaGementSubPanelText:SetHeight(ManaGementSubPanel:GetHeight())
     ManaGementSubPanelText:SetPoint("TOPLEFT", 0, -50)
     ManaGementSubPanelText:SetText(
-        "AzerPUG-GameUtility-ManaGement does not have options yet.\n" ..
+        "AzerPUG's Mana Management does not have options yet.\n" ..
         "For feature requests visit our Discord Server!"
     )
 end
