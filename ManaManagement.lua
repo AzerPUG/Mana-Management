@@ -7,27 +7,54 @@ if AZP.OnEvent == nil then AZP.OnEvent = {} end
 AZP.VersionControl.ManaManagement = 8
 AZP.ManaManagement = {}
 
-local dash = " - "
-local name = "Mana Management"
-local nameFull = ("AzerPUG " .. name)
-local promo = (nameFull .. dash ..  AZPIUManaGementVersion)
-
-local ModuleStats = AZP.Core.ModuleStats        -- Change to direct call!
-
+local AZPMMSelfOptionPanel = nil
 local moveable = false
 local raidHealers
 local bossHealthBar
+local optionHeader = "|cFF00FFFFMana Management|r"
 
 function AZP.VersionControl:ManaManagement()
-    return AZPIUManaGementVersion
+    return AZP.VersionControl.ManaManagement
 end
 
+function AZP.ManaManagement:OnLoadBoth()
+    bossHealthBar = CreateFrame("StatusBar", nil, AZPManaGementFrame)
+    bossHealthBar:SetSize(150, 25)
+    bossHealthBar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
+    bossHealthBar:SetPoint("CENTER", 0, -25)
+    bossHealthBar:SetMinMaxValues(0, 100)
+    bossHealthBar:SetValue(100)
+    bossHealthBar.bg = bossHealthBar:CreateTexture(nil, "BACKGROUND")
+    bossHealthBar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
+    bossHealthBar.bg:SetAllPoints(true)
+    bossHealthBar.bg:SetVertexColor(1, 0, 0)
+    bossHealthBar.healthPercentText = bossHealthBar:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    bossHealthBar.healthPercentText:SetText("N/A")
+    bossHealthBar.healthPercentText:SetPoint("CENTER", 25, 0)
+    bossHealthBar.healthPercentText:SetSize(150, 20)
+    bossHealthBar.bossNameText = bossHealthBar:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    bossHealthBar.bossNameText:SetText("UnEngaged")
+    bossHealthBar.bossNameText:SetPoint("LEFT", 5, 0)
+    bossHealthBar.bossNameText:SetJustifyH("LEFT")
+    bossHealthBar.bossNameText:SetSize(150, 20)
+    bossHealthBar:SetStatusBarColor(0, 0.75, 1)
 
-function AZP.OnLoad:ManaManagement(self)
-    ModuleStats["Frames"]["ManaManagement"]:SetSize(200, 100)
+    AZP.ManaManagement:ResetManaBars()
+end
+
+function AZP.ManaManagement:OnLoadCore()
+    AZP.Core:RegisterEvents("UNIT_POWER_UPDATE", function(...) AZP.ManaManagement:eventUnitPowerUpdate(...) end)
+    AZP.Core:RegisterEvents("GROUP_ROSTER_UPDATE", function(...) AZP.ManaManagement:eventGroupRosterUpdate(...) end)
+
+    AZP.ManaManagement:OnLoadBoth()
+
+    AZP.OptionsPanels:Generic("Mana Management", optionHeader, function (frame)
+        AZP.ToolTips:FillOptionsPanel(frame)
+    end)
+end
+
+function AZP.ManaManagement:OnLoadSelf()
     AZP.ManaManagement:ChangeOptionsText()
-    InstanceUtilityAddonFrame:RegisterEvent("UNIT_POWER_UPDATE")
-    InstanceUtilityAddonFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
     AZPManaGementFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
     AZPManaGementFrame:SetWidth("200")
@@ -40,7 +67,31 @@ function AZP.OnLoad:ManaManagement(self)
     AZPManaGementFrame:SetScript("OnDragStart", AZPManaGementFrame.StartMoving)
     AZPManaGementFrame:SetScript("OnDragStop", AZPManaGementFrame.StopMovingOrSizing)
 
-    local AZPMGShowHideButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaManagement"], "UIPanelButtonTemplate")
+    AZPManaGementFrame:RegisterEvent("UNIT_POWER_UPDATE")
+    AZPManaGementFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+
+    AZPMMSelfOptionPanel = CreateFrame("FRAME", nil)
+    AZPMMSelfOptionPanel.name = optionHeader
+    InterfaceOptions_AddCategory(AZPMMSelfOptionPanel)
+    AZPMMSelfOptionPanel.header = AZPMMSelfOptionPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+    AZPMMSelfOptionPanel.header:SetPoint("TOP", 0, -10)
+    AZPMMSelfOptionPanel.header:SetText("|cFF00FFFFAzerPUG's Mana Management Options!|r")
+
+    AZPMMSelfOptionPanel.footer = AZPMMSelfOptionPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    AZPMMSelfOptionPanel.footer:SetPoint("TOP", 0, -300)
+    AZPMMSelfOptionPanel.footer:SetText(
+        "|cFF00FFFFAzerPUG Links:\n" ..
+        "Website: www.azerpug.com\n" ..
+        "Discord: www.azerpug.com/discord\n" ..
+        "Twitch: www.twitch.tv/azerpug\n|r"
+    )
+
+    AZP.ManaManagement:FillOptionsPanel(AZPMMSelfOptionPanel)
+    AZP.ManaManagement:OnLoadBoth()
+end
+
+function AZP.ManaManagement:FillOptionsPanel(frameToFill)
+    local AZPMGShowHideButton = CreateFrame("Button", nil, frameToFill, "UIPanelButtonTemplate")
     AZPMGShowHideButton.contentText = AZPMGShowHideButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     if AZPManaGementFrame:IsShown() then
         AZPMGShowHideButton.contentText:SetText("Hide")
@@ -51,7 +102,7 @@ function AZP.OnLoad:ManaManagement(self)
     AZPMGShowHideButton:SetHeight("25")
     AZPMGShowHideButton.contentText:SetWidth("100")
     AZPMGShowHideButton.contentText:SetHeight("15")
-    AZPMGShowHideButton:SetPoint("TOPLEFT", 25, -35)
+    AZPMGShowHideButton:SetPoint("TOP", 100, -50)
     AZPMGShowHideButton.contentText:SetPoint("CENTER", 0, -1)
     AZPMGShowHideButton:SetScript("OnClick", function()
         if AZPManaGementFrame:IsShown() then
@@ -63,7 +114,7 @@ function AZP.OnLoad:ManaManagement(self)
         end
     end )
 
-    local AZPMGToggleMoveButton = CreateFrame("Button", nil, ModuleStats["Frames"]["ManaManagement"], "UIPanelButtonTemplate")
+    local AZPMGToggleMoveButton = CreateFrame("Button", nil, AZP.Core.ModuleStats["Frames"]["ManaManagement"], "UIPanelButtonTemplate")
     AZPMGToggleMoveButton.contentText = AZPMGToggleMoveButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     AZPMGToggleMoveButton.contentText:SetText("Toggle Movement!")
     AZPMGToggleMoveButton:SetWidth("100")
@@ -103,28 +154,7 @@ function AZP.OnLoad:ManaManagement(self)
         end
     end)
 
-    bossHealthBar = CreateFrame("StatusBar", nil, AZPManaGementFrame)
-    bossHealthBar:SetSize(150, 25)
-    bossHealthBar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-    bossHealthBar:SetPoint("CENTER", 0, -25)
-    bossHealthBar:SetMinMaxValues(0, 100)
-    bossHealthBar:SetValue(100)
-    bossHealthBar.bg = bossHealthBar:CreateTexture(nil, "BACKGROUND")
-    bossHealthBar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
-    bossHealthBar.bg:SetAllPoints(true)
-    bossHealthBar.bg:SetVertexColor(1, 0, 0)
-    bossHealthBar.healthPercentText = bossHealthBar:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-    bossHealthBar.healthPercentText:SetText("N/A")
-    bossHealthBar.healthPercentText:SetPoint("CENTER", 25, 0)
-    bossHealthBar.healthPercentText:SetSize(150, 20)
-    bossHealthBar.bossNameText = bossHealthBar:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-    bossHealthBar.bossNameText:SetText("UnEngaged")
-    bossHealthBar.bossNameText:SetPoint("LEFT", 5, 0)
-    bossHealthBar.bossNameText:SetJustifyH("LEFT")
-    bossHealthBar.bossNameText:SetSize(150, 20)
-    bossHealthBar:SetStatusBarColor(0, 0.75, 1)
-
-    AZP.ManaManagement:ResetManaBars()
+    frameToFill:Hide()
 end
 
 function AZP.ManaManagement:TrackMana()
@@ -236,38 +266,28 @@ function AZP.ManaManagement:GetClassColor(classIndex)
     end
 end
 
-function AZP.OnEvent:ManaManagement(event, ...)
-    if event == "UNIT_POWER_UPDATE" then
-        local unitID, powerID = ...
-        if powerID == "MANA" then
-            if UnitGroupRolesAssigned(unitID) == "HEALER" then
-                AZP.ManaManagement:TrackMana()
-                AZP.ManaManagement:OrderManaBars()
-            end
+function AZP.ManaManagement:eventUnitPowerUpdate(...)
+    local unitID, powerID = ...
+    if powerID == "MANA" then
+        if UnitGroupRolesAssigned(unitID) == "HEALER" then
+            AZP.ManaManagement:TrackMana()
+            AZP.ManaManagement:OrderManaBars()
         end
-    elseif event == "GROUP_ROSTER_UPDATE" then
-        AZP.ManaManagement:ResetManaBars()
     end
 end
 
-function AZP.ManaManagement:ChangeOptionsText()
-    ManaGementSubPanelPHTitle:Hide()
-    ManaGementSubPanelPHText:Hide()
-    ManaGementSubPanelPHTitle:SetParent(nil)
-    ManaGementSubPanelPHText:SetParent(nil)
+function AZP.ManaManagement:eventGroupRosterUpdate(...)
+    AZP.ManaManagement:ResetManaBars()
+end
 
-    local ManaGementSubPanelHeader = ManaGementSubPanel:CreateFontString("ManaGementSubPanelHeader", "ARTWORK", "GameFontNormalHuge")
-    ManaGementSubPanelHeader:SetText(promo)
-    ManaGementSubPanelHeader:SetWidth(ManaGementSubPanel:GetWidth())
-    ManaGementSubPanelHeader:SetHeight(ManaGementSubPanel:GetHeight())
-    ManaGementSubPanelHeader:SetPoint("TOP", 0, -10)
+function AZP.OnEvent:ManaManagement(event, ...)
+    if event == "UNIT_POWER_UPDATE" then
+        AZP.ManaManagement:eventUnitPowerUpdate(...)
+    elseif event == "GROUP_ROSTER_UPDATE" then
+        AZP.ManaManagement:eventGroupRosterUpdate(...)
+    end
+end
 
-    local ManaGementSubPanelText = ManaGementSubPanel:CreateFontString("ManaGementSubPanelText", "ARTWORK", "GameFontNormalLarge")
-    ManaGementSubPanelText:SetWidth(ManaGementSubPanel:GetWidth())
-    ManaGementSubPanelText:SetHeight(ManaGementSubPanel:GetHeight())
-    ManaGementSubPanelText:SetPoint("TOPLEFT", 0, -50)
-    ManaGementSubPanelText:SetText(
-        "AzerPUG's Mana Management does not have options yet.\n" ..
-        "For feature requests visit our Discord Server!"
-    )
+if not IsAddOnLoaded("AzerPUG's Core") then
+    AZP.ManaManagement:OnLoadSelf()
 end
