@@ -4,8 +4,9 @@ if AZP.OnLoad == nil then AZP.OnLoad = {} end
 if AZP.OnEvent == nil then AZP.OnEvent = {} end
 if AZP.OnEvent == nil then AZP.OnEvent = {} end
 
-AZP.VersionControl.ManaManagement = 8
+AZP.VersionControl.ManaManagement = 10
 AZP.ManaManagement = {}
+
 
 local AZPMMSelfOptionPanel = nil
 local moveable = false
@@ -18,6 +19,11 @@ function AZP.VersionControl:ManaManagement()
 end
 
 function AZP.ManaManagement:OnLoadBoth()
+    -- Default scale, 1.
+    if ManaGementScale == nil then
+        ManaGementScale = 1.0
+    end
+    
     bossHealthBar = CreateFrame("StatusBar", nil, AZPManaGementFrame)
     bossHealthBar:SetSize(150, 25)
     bossHealthBar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
@@ -38,6 +44,7 @@ function AZP.ManaManagement:OnLoadBoth()
     bossHealthBar.bossNameText:SetJustifyH("LEFT")
     bossHealthBar.bossNameText:SetSize(150, 20)
     bossHealthBar:SetStatusBarColor(0, 0.75, 1)
+    bossHealthBar:SetScale(ManaGementScale)
 
     AZP.ManaManagement:ResetManaBars()
 end
@@ -154,6 +161,24 @@ function AZP.ManaManagement:FillOptionsPanel(frameToFill)
         end
     end)
 
+    local ManaGementScaleSlider = CreateFrame("SLIDER", "ManaGementScaleSlider", frameToFill, "OptionsSliderTemplate")
+    ManaGementScaleSlider:SetHeight(20)
+    ManaGementScaleSlider:SetWidth(500)
+    ManaGementScaleSlider:SetOrientation('HORIZONTAL')
+    ManaGementScaleSlider:SetPoint("TOP", 0, -100)
+    ManaGementScaleSlider:EnableMouse(true)
+    ManaGementScaleSlider.tooltipText = 'Scale for mana bars'
+    ManaGementScaleSliderLow:SetText('small')
+    ManaGementScaleSliderHigh:SetText('big')
+    ManaGementScaleSliderText:SetText('Scale')
+
+    ManaGementScaleSlider:Show()
+    ManaGementScaleSlider:SetMinMaxValues(0.5, 2)
+    ManaGementScaleSlider:SetValueStep(0.1)
+    ManaGementScaleSlider:SetValue(ManaGementScale)
+
+    ManaGementScaleSlider:SetScript("OnValueChanged", AZP.ManaManagement.setScale)
+
     frameToFill:Hide()
 end
 
@@ -199,7 +224,15 @@ function AZP.ManaManagement:OrderManaBars()
     end
 end
 
-function AZP.ManaManagement:ResetManaBars()
+function  AZP.ManaManagement:setScale(scale)
+    ManaGementScale = scale
+    for i=1,#raidHealers do
+        raidHealers[i][6]:SetScale(scale)
+    end
+    bossHealthBar:SetScale(scale)
+end
+
+function  AZP.ManaManagement:ResetManaBars()
     if raidHealers ~= nil then
         for i=1,#raidHealers do
             raidHealers[i][6].contentText = nil
@@ -232,6 +265,7 @@ function AZP.ManaManagement:ResetManaBars()
         raidHealers[i][6]:SetMinMaxValues(0, raidHealers[i][4])
         raidHealers[i][6]:SetValue(raidHealers[i][3])
         raidHealers[i][6]:SetPoint("CENTER", 0, -25*i-25)
+        raidHealers[i][6]:SetScale(ManaGementScale)
         raidHealers[i][6].bg = raidHealers[i][6]:CreateTexture(nil, "BACKGROUND")
         raidHealers[i][6].bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
         raidHealers[i][6].bg:SetAllPoints(true)
