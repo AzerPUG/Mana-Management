@@ -358,3 +358,6 @@ end
 AZP.SlashCommands["mana"] = function ()
     if ManaManagementSelfFrame ~= nil then ManaManagementSelfFrame:Show() end
 end
+-- Aliases
+AZP.SlashCommands["mm"] = AZP.SlashCommands["mana"]
+AZP.SlashCommands["mana management"] = AZP.SlashCommands["mana"]
