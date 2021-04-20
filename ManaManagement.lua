@@ -54,8 +54,6 @@ function AZP.ManaManagement:OnLoadBoth()
     bossHealthBar:SetScale(ManaGementScale)
 
     AZP.ManaManagement:ResetManaBars()
-
-
 end
 
 function AZP.ManaManagement:OnLoadCore()
@@ -68,7 +66,7 @@ function AZP.ManaManagement:OnLoadCore()
         AZP.ManaManagement:FillOptionsPanel(frame)
     end)
 
-    self:FillMainFrame(AZP.Core.AddOns.MM.MainFrame)
+    AZP.ManaManagement:FillMainFrame(AZP.Core.AddOns.MM.MainFrame)
 end
 
 function AZP.ManaManagement:OnLoadSelf()
@@ -92,9 +90,9 @@ function AZP.ManaManagement:OnLoadSelf()
         "Discord: www.azerpug.com/discord\n" ..
         "Twitch: www.twitch.tv/azerpug\n|r"
     )
-    self:OnLoadBoth()
-    self:CreateSelfMainFrame()
-    self:FillOptionsPanel(AZPMMSelfOptionPanel)
+    AZP.ManaManagement:OnLoadBoth()
+    AZP.ManaManagement:CreateSelfMainFrame()
+    AZP.ManaManagement:FillOptionsPanel(AZPMMSelfOptionPanel)
 
 end
 
@@ -120,7 +118,7 @@ function AZP.ManaManagement:CreateSelfMainFrame()
     IUAddonFrameCloseButton:SetPoint("TOPRIGHT", ManaManagementSelfFrame, "TOPRIGHT", 2, 2)
     IUAddonFrameCloseButton:SetScript("OnClick", function() ManaManagementSelfFrame:Hide() end )
 
-    self:FillMainFrame(ManaManagementSelfFrame)
+    AZP.ManaManagement:FillMainFrame(ManaManagementSelfFrame)
 end
 
 function AZP.ManaManagement:FillMainFrame(frameToFill)
