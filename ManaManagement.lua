@@ -7,23 +7,30 @@ if AZP.OnEvent == nil then AZP.OnEvent = {} end
 AZP.VersionControl.ManaManagement = 10
 AZP.ManaManagement = {}
 
-
 local AZPMMSelfOptionPanel = nil
 local moveable = false
 local raidHealers
 local bossHealthBar
 local optionHeader = "|cFF00FFFFMana Management|r"
-
-function AZP.VersionControl:ManaManagement()
-    return AZP.VersionControl.ManaManagement
-end
+local AZPManaGementFrame, ManaManagementSelfFrame
 
 function AZP.ManaManagement:OnLoadBoth()
     -- Default scale, 1.
     if ManaGementScale == nil then
         ManaGementScale = 1.0
     end
-    
+
+    AZPManaGementFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+    AZPManaGementFrame:SetWidth("200")
+    AZPManaGementFrame:SetHeight("50")
+    if ManaGementLocation == nil then
+        AZPManaGementFrame:SetPoint("CENTER", -300, 200)
+    else
+        AZPManaGementFrame:SetPoint(ManaGementLocation[1], ManaGementLocation[2], ManaGementLocation[3])
+    end
+    AZPManaGementFrame:SetScript("OnDragStart", AZPManaGementFrame.StartMoving)
+    AZPManaGementFrame:SetScript("OnDragStop", AZPManaGementFrame.StopMovingOrSizing)
+
     bossHealthBar = CreateFrame("StatusBar", nil, AZPManaGementFrame)
     bossHealthBar:SetSize(150, 25)
     bossHealthBar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
@@ -47,6 +54,8 @@ function AZP.ManaManagement:OnLoadBoth()
     bossHealthBar:SetScale(ManaGementScale)
 
     AZP.ManaManagement:ResetManaBars()
+
+
 end
 
 function AZP.ManaManagement:OnLoadCore()
@@ -56,26 +65,17 @@ function AZP.ManaManagement:OnLoadCore()
     AZP.ManaManagement:OnLoadBoth()
 
     AZP.OptionsPanels:Generic("Mana Management", optionHeader, function (frame)
-        AZP.ToolTips:FillOptionsPanel(frame)
+        AZP.ManaManagement:FillOptionsPanel(frame)
     end)
+
+    self:FillMainFrame(AZP.Core.AddOns.MM.MainFrame)
 end
 
 function AZP.ManaManagement:OnLoadSelf()
-    AZP.ManaManagement:ChangeOptionsText()
-
-    AZPManaGementFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
-    AZPManaGementFrame:SetWidth("200")
-    AZPManaGementFrame:SetHeight("50")
-    if ManaGementLocation == nil then
-        AZPManaGementFrame:SetPoint("CENTER", -300, 200)
-    else
-        AZPManaGementFrame:SetPoint(ManaGementLocation[1], ManaGementLocation[2], ManaGementLocation[3])
-    end
-    AZPManaGementFrame:SetScript("OnDragStart", AZPManaGementFrame.StartMoving)
-    AZPManaGementFrame:SetScript("OnDragStop", AZPManaGementFrame.StopMovingOrSizing)
-
-    AZPManaGementFrame:RegisterEvent("UNIT_POWER_UPDATE")
-    AZPManaGementFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+    local eventFrame = CreateFrame("Frame")
+    eventFrame:SetScript("OnEvent", AZP.OnEvent.ManaManagement)
+    eventFrame:RegisterEvent("UNIT_POWER_UPDATE")
+    eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
     AZPMMSelfOptionPanel = CreateFrame("FRAME", nil)
     AZPMMSelfOptionPanel.name = optionHeader
@@ -92,24 +92,45 @@ function AZP.ManaManagement:OnLoadSelf()
         "Discord: www.azerpug.com/discord\n" ..
         "Twitch: www.twitch.tv/azerpug\n|r"
     )
+    self:OnLoadBoth()
+    self:CreateSelfMainFrame()
+    self:FillOptionsPanel(AZPMMSelfOptionPanel)
 
-    AZP.ManaManagement:FillOptionsPanel(AZPMMSelfOptionPanel)
-    AZP.ManaManagement:OnLoadBoth()
 end
 
-function AZP.ManaManagement:FillOptionsPanel(frameToFill)
+function AZP.ManaManagement:CreateSelfMainFrame()
+    ManaManagementSelfFrame = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
+    ManaManagementSelfFrame:SetSize(110, 110)
+    ManaManagementSelfFrame:SetPoint("CENTER", 0, 0)
+    ManaManagementSelfFrame:SetScript("OnDragStart", ManaManagementSelfFrame.StartMoving)
+    ManaManagementSelfFrame:SetScript("OnDragStop", ManaManagementSelfFrame.StopMovingOrSizing)
+    ManaManagementSelfFrame:RegisterForDrag("LeftButton")
+    ManaManagementSelfFrame:EnableMouse(true)
+    ManaManagementSelfFrame:SetMovable(true)
+    ManaManagementSelfFrame:SetBackdrop({
+        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 12,
+        insets = { left = 1, right = 1, top = 1, bottom = 1 },
+    })
+    ManaManagementSelfFrame:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
+
+    local IUAddonFrameCloseButton = CreateFrame("Button", nil, ManaManagementSelfFrame, "UIPanelCloseButton")
+    IUAddonFrameCloseButton:SetSize(20, 21)
+    IUAddonFrameCloseButton:SetPoint("TOPRIGHT", ManaManagementSelfFrame, "TOPRIGHT", 2, 2)
+    IUAddonFrameCloseButton:SetScript("OnClick", function() ManaManagementSelfFrame:Hide() end )
+
+    self:FillMainFrame(ManaManagementSelfFrame)
+end
+
+function AZP.ManaManagement:FillMainFrame(frameToFill)
     local AZPMGShowHideButton = CreateFrame("Button", nil, frameToFill, "UIPanelButtonTemplate")
     AZPMGShowHideButton.contentText = AZPMGShowHideButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    if AZPManaGementFrame:IsShown() then
-        AZPMGShowHideButton.contentText:SetText("Hide")
-    else
-        AZPMGShowHideButton.contentText:SetText("Show")
-    end
     AZPMGShowHideButton:SetWidth("100")
     AZPMGShowHideButton:SetHeight("25")
     AZPMGShowHideButton.contentText:SetWidth("100")
     AZPMGShowHideButton.contentText:SetHeight("15")
-    AZPMGShowHideButton:SetPoint("TOP", 100, -50)
+    AZPMGShowHideButton:SetPoint("TOPLEFT", 5, -5)
     AZPMGShowHideButton.contentText:SetPoint("CENTER", 0, -1)
     AZPMGShowHideButton:SetScript("OnClick", function()
         if AZPManaGementFrame:IsShown() then
@@ -121,14 +142,20 @@ function AZP.ManaManagement:FillOptionsPanel(frameToFill)
         end
     end )
 
-    local AZPMGToggleMoveButton = CreateFrame("Button", nil, AZP.Core.ModuleStats["Frames"]["ManaManagement"], "UIPanelButtonTemplate")
+    if AZPManaGementFrame:IsShown() then
+        AZPMGShowHideButton.contentText:SetText("Hide")
+    else
+        AZPMGShowHideButton.contentText:SetText("Show")
+    end
+
+    local AZPMGToggleMoveButton = CreateFrame("Button", nil, frameToFill, "UIPanelButtonTemplate")
     AZPMGToggleMoveButton.contentText = AZPMGToggleMoveButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     AZPMGToggleMoveButton.contentText:SetText("Toggle Movement!")
     AZPMGToggleMoveButton:SetWidth("100")
     AZPMGToggleMoveButton:SetHeight("25")
     AZPMGToggleMoveButton.contentText:SetWidth("100")
     AZPMGToggleMoveButton.contentText:SetHeight("15")
-    AZPMGToggleMoveButton:SetPoint("TOPLEFT", 25, -10)
+    AZPMGToggleMoveButton:SetPoint("TOP", AZPMGShowHideButton, "BOTTOM", 0, -5)
     AZPMGToggleMoveButton.contentText:SetPoint("CENTER", 0, -1)
     AZPMGToggleMoveButton:SetScript("OnClick",
     function()
@@ -160,7 +187,9 @@ function AZP.ManaManagement:FillOptionsPanel(frameToFill)
             moveable = false
         end
     end)
+end
 
+function AZP.ManaManagement:FillOptionsPanel(frameToFill)
     local ManaGementScaleSlider = CreateFrame("SLIDER", "ManaGementScaleSlider", frameToFill, "OptionsSliderTemplate")
     ManaGementScaleSlider:SetHeight(20)
     ManaGementScaleSlider:SetWidth(500)
@@ -324,4 +353,8 @@ end
 
 if not IsAddOnLoaded("AzerPUG's Core") then
     AZP.ManaManagement:OnLoadSelf()
+end
+
+AZP.SlashCommands["mana"] = function ()
+    if ManaManagementSelfFrame ~= nil then ManaManagementSelfFrame:Show() end
 end
