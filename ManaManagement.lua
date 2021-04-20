@@ -13,6 +13,8 @@ local raidHealers
 local bossHealthBar
 local optionHeader = "|cFF00FFFFMana Management|r"
 local AZPManaGementFrame, ManaManagementSelfFrame
+local UpdateFrame = nil
+
 
 function AZP.ManaManagement:OnLoadBoth()
     -- Default scale, 1.
@@ -74,6 +76,7 @@ function AZP.ManaManagement:OnLoadSelf()
     eventFrame:SetScript("OnEvent", AZP.OnEvent.ManaManagement)
     eventFrame:RegisterEvent("UNIT_POWER_UPDATE")
     eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+    eventFrame:RegisterEvent("CHAT_MSG_ADDON")
 
     AZPMMSelfOptionPanel = CreateFrame("FRAME", nil)
     AZPMMSelfOptionPanel.name = optionHeader
@@ -90,6 +93,34 @@ function AZP.ManaManagement:OnLoadSelf()
         "Discord: www.azerpug.com/discord\n" ..
         "Twitch: www.twitch.tv/azerpug\n|r"
     )
+
+    
+    UpdateFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+    UpdateFrame:SetPoint("CENTER", 0, 250)
+    UpdateFrame:SetSize(400, 200)
+    UpdateFrame:SetBackdrop({
+        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 12,
+        insets = { left = 1, right = 1, top = 1, bottom = 1 },
+    })
+    UpdateFrame:SetBackdropColor(0.25, 0.25, 0.25, 0.80)
+    UpdateFrame.header = UpdateFrame:CreateFontString("UpdateFrame", "ARTWORK", "GameFontNormalHuge")
+    UpdateFrame.header:SetPoint("TOP", 0, -10)
+    UpdateFrame.header:SetText("|cFFFF0000AzerPUG Mana Management is out of date!|r")
+
+    UpdateFrame.text = UpdateFrame:CreateFontString("UpdateFrame", "ARTWORK", "GameFontNormalLarge")
+    UpdateFrame.text:SetPoint("TOP", 0, -40)
+    UpdateFrame.text:SetText("Error!")
+
+    UpdateFrame:Hide()
+
+    local UpdateFrameCloseButton = CreateFrame("Button", nil, UpdateFrame, "UIPanelCloseButton")
+    UpdateFrameCloseButton:SetWidth(25)
+    UpdateFrameCloseButton:SetHeight(25)
+    UpdateFrameCloseButton:SetPoint("TOPRIGHT", UpdateFrame, "TOPRIGHT", 2, 2)
+    UpdateFrameCloseButton:SetScript("OnClick", function() UpdateFrame:Hide() end )
+
     AZP.ManaManagement:OnLoadBoth()
     AZP.ManaManagement:CreateSelfMainFrame()
     AZP.ManaManagement:FillOptionsPanel(AZPMMSelfOptionPanel)
@@ -209,6 +240,48 @@ function AZP.ManaManagement:FillOptionsPanel(frameToFill)
     frameToFill:Hide()
 end
 
+function AZP.ManaManagement:ShareVersion()
+    local versionString = string.format("|MM:%d|", AZP.VersionControl.ManaManagement)
+    if IsInGroup() then
+        if IsInRaid() then
+            C_ChatInfo.SendAddonMessage("AZPVERSIONS", versionString ,"RAID", 1)
+        else
+            C_ChatInfo.SendAddonMessage("AZPVERSIONS", versionString ,"PARTY", 1)
+        end
+    end
+    if IsInGuild() then
+        C_ChatInfo.SendAddonMessage("AZPVERSIONS", versionString ,"GUILD", 1)
+    end
+end
+
+function AZP.ManaManagement:ReceiveVersion(version)
+    if version > AZP.VersionControl.ManaManagement then
+        if (not HaveShowedUpdateNotification) then
+            HaveShowedUpdateNotification = true
+            UpdateFrame:Show()
+            UpdateFrame.text:SetText(
+                "Please download the new version through the CurseForge app.\n" ..
+                "Or use the CurseForge website to download it manually!\n\n" .. 
+                "Newer Version: v" .. version .. "\n" .. 
+                "Your version: v" .. AZP.VersionControl.ManaManagement
+            )
+        end
+    end
+end
+
+function AZP.ManaManagement:GetSpecificAddonVersion(versionString, addonWanted)
+    local pattern = "|([A-Z]+):([0-9]+)|"
+    local index = 1
+    while index < #versionString do
+        local _, endPos = string.find(versionString, pattern, index)
+        local addon, version = string.match(versionString, pattern, index)
+        index = endPos + 1
+        if addon == addonWanted then
+            return tonumber(version)
+        end
+    end
+end
+
 function AZP.ManaManagement:TrackMana()
     local bossName = UnitName("boss1")
     local bossMaxHealth = UnitHealthMax("boss1")
@@ -235,7 +308,6 @@ function AZP.ManaManagement:TrackMana()
 end
 
 function AZP.ManaManagement:CalcPercent()
-
 end
 
 function AZP.ManaManagement:OrderManaBars()
@@ -337,6 +409,16 @@ function AZP.ManaManagement:eventUnitPowerUpdate(...)
     end
 end
 
+function AZP.ManaManagement:eventChatMsgAddon(...)
+    local prefix, payload, _, sender = ...
+    if prefix == "AZPVERSIONS" then
+        local version = AZP.ManaManagement:GetSpecificAddonVersion(payload, "MM")
+        if version ~= nil then
+            AZP.ManaManagement:ReceiveVersion(version)
+        end
+    end
+end
+
 function AZP.ManaManagement:eventGroupRosterUpdate(...)
     AZP.ManaManagement:ResetManaBars()
 end
@@ -346,6 +428,8 @@ function AZP.OnEvent:ManaManagement(event, ...)
         AZP.ManaManagement:eventUnitPowerUpdate(...)
     elseif event == "GROUP_ROSTER_UPDATE" then
         AZP.ManaManagement:eventGroupRosterUpdate(...)
+    elseif event == "CHAT_MSG_ADDON" then
+        AZP.ManaManagement:eventChatMsgAddon(...)
     end
 end
 
