@@ -353,9 +353,10 @@ if not IsAddOnLoaded("AzerPUG's Core") then
     AZP.ManaManagement:OnLoadSelf()
 end
 
-AZP.SlashCommands["mana"] = function ()
+AZP.SlashCommands["MM"] = function()
     if ManaManagementSelfFrame ~= nil then ManaManagementSelfFrame:Show() end
 end
--- Aliases
-AZP.SlashCommands["mm"] = AZP.SlashCommands["mana"]
-AZP.SlashCommands["mana management"] = AZP.SlashCommands["mana"]
+
+AZP.SlashCommands["mm"] = AZP.SlashCommands["MM"]
+AZP.SlashCommands["mana"] = AZP.SlashCommands["MM"]
+AZP.SlashCommands["mana management"] = AZP.SlashCommands["MM"]
