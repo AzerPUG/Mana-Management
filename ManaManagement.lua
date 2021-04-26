@@ -2,7 +2,6 @@ if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 if AZP.OnLoad == nil then AZP.OnLoad = {} end
 
-
 AZP.VersionControl["Mana Management"] = 10
 AZP.ManaManagement = {}
 
@@ -468,7 +467,7 @@ function AZP.ManaManagement:OnEvent(self, event, ...)
     end
 end
 
-if not IsAddOnLoaded("AzerPUG's Core") then
+if not IsAddOnLoaded("AzerPUGsCore") then
     AZP.ManaManagement:OnLoadSelf()
 end
 
