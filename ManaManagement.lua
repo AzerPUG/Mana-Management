@@ -249,7 +249,6 @@ function AZP.ManaManagement:eventVariablesLoadedManaBars(...)
     ManaGementScaleSlider:SetValue(ManaGementScale)
 end
 
-
 function AZP.ManaManagement:FillOptionsPanel(frameToFill)
     local ManaGementScaleSlider = CreateFrame("SLIDER", "ManaGementScaleSlider", frameToFill, "OptionsSliderTemplate")
     ManaGementScaleSlider:SetHeight(20)
@@ -452,6 +451,7 @@ end
 
 function AZP.ManaManagement:eventGroupRosterUpdate(...)
     AZP.ManaManagement:ResetManaBars()
+    AZP.ManaManagement:ShareVersion()
 end
 
 function AZP.ManaManagement:OnEvent(self, event, ...)
