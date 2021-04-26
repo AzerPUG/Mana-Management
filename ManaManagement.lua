@@ -85,7 +85,7 @@ function AZP.ManaManagement:OnLoadBoth(mainFrame)
     AZPMGToggleMoveButton:SetHeight("25")
     AZPMGToggleMoveButton.contentText:SetWidth("100")
     AZPMGToggleMoveButton.contentText:SetHeight("15")
-    AZPMGToggleMoveButton:SetPoint("TOP", AZPMGShowHideButton, "BOTTOM", 0, -5)
+    AZPMGToggleMoveButton:SetPoint("TOPLEFT", 5, -30)
     AZPMGToggleMoveButton.contentText:SetPoint("CENTER", 0, -1)
     AZPMGToggleMoveButton:SetScript("OnClick",
     function()
@@ -194,7 +194,7 @@ end
 
 function AZP.ManaManagement:CreateSelfMainFrame()
     ManaManagementSelfFrame = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
-    ManaManagementSelfFrame:SetSize(110, 110)
+    ManaManagementSelfFrame:SetSize(110, 65)
     ManaManagementSelfFrame:SetPoint("CENTER", 0, 0)
     ManaManagementSelfFrame:SetScript("OnDragStart", ManaManagementSelfFrame.StartMoving)
     ManaManagementSelfFrame:SetScript("OnDragStop", function()
