@@ -16,7 +16,7 @@
 AzerPUG's Mana Management adds a mana bar for each healer in your group, to make it easier to track who has what amount of mana. It also adds a boss health bar for the users convenience so you can easily see if you are doing too much or too little.
 
 # Bugs, Errors, Glitches and Requests.
-If you find any of the above, please do not hessitate to create a GitHub Issue here: https://github.com/AzerPUG/Mana-Management/issues  
+If you find any of the above, please do not hesitate to create a GitHub Issue here: https://github.com/AzerPUG/Mana-Management/issues  
 Or you can join our Discord and let us know in the AzerTech channel: http://www.azerpug.com/discord  
 Please note that our Discord Verification level prevents new people from talking/commenting/ranking in the first 10 minutes!
 
