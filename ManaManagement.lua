@@ -416,14 +416,7 @@ function  AZP.ManaManagement:ResetManaBars()
         raidHealers[i][6].healerNameText:SetSize(150, 20)
         raidHealers[i][6]:SetStatusBarColor(0, 0.75, 1)
 
-        raidHealers[i][6].InnervateButton = CreateFrame("Button", nil, raidHealers[i][6], "SecureActionButtonTemplate, BackdropTemplate")
-        raidHealers[i][6].InnervateButton:SetBackdrop({
-                bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-                edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-                edgeSize = 12,
-                insets = { left = 1, right = 1, top = 1, bottom = 1 },
-            })
-        raidHealers[i][6].InnervateButton:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
+        raidHealers[i][6].InnervateButton = CreateFrame("Button", nil, raidHealers[i][6], "SecureActionButtonTemplate")
 
         raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6]:GetWidth(), raidHealers[i][6]:GetHeight())
         raidHealers[i][6].InnervateButton:SetPoint(raidHealers[i][6]:GetPoint())
