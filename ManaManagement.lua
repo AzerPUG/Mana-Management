@@ -424,14 +424,14 @@ function  AZP.ManaManagement:ResetManaBars()
         raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6].InnervateButton:GetWidth(), raidHealers[i][6].InnervateButton:GetHeight() + 3)
         raidHealers[i][6].InnervateButton:EnableMouse(true)
         raidHealers[i][6].InnervateButton:SetAttribute("type", "spell")
-        local innervateTarget = AZP.ManaManagement:InnervateHealer(raidHealers[i][1])
+        local innervateTarget = AZP.ManaManagement:GetInnervateTarget(raidHealers[i][1])
         raidHealers[i][6].InnervateButton:SetAttribute("unit", innervateTarget)
         local spellName = GetSpellInfo(29166)
         raidHealers[i][6].InnervateButton:SetAttribute("spell", spellName)
     end
 end
 
-function AZP.ManaManagement:InnervateHealer(healerName)
+function AZP.ManaManagement:GetInnervateTarget(healerName)
     for i = 1, 40 do
         if GetRaidRosterInfo(i) ~= nil then
             local raiderName = GetRaidRosterInfo(i)
