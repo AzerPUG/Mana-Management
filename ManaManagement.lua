@@ -337,7 +337,7 @@ function AZP.ManaManagement:TrackMana()
     end
 end
 
-function AZP.ManaManagement:CalcPercent()
+function AZP.ManaManagement:CalcPercent()   -- Unused function? Beginning of changes to calculate % even when not in combat?
 end
 
 function AZP.ManaManagement:OrderManaBars()
@@ -350,6 +350,7 @@ function AZP.ManaManagement:OrderManaBars()
 
     for i=1,#raidHealers do
         raidHealers[i][6]:SetPoint("CENTER", 0, -25*i-25)
+        raidHealers[i][6].InnervateButton:SetPoint(raidHealers[i][6]:GetPoint())
     end
 end
 
@@ -357,6 +358,7 @@ function  AZP.ManaManagement:setScale(scale)
     ManaGementScale = scale
     for i=1,#raidHealers do
         raidHealers[i][6]:SetScale(scale)
+        --raidHealers[i][7]:SetScale(scale)
     end
     bossHealthBar:SetScale(scale)
 end
@@ -368,6 +370,10 @@ function  AZP.ManaManagement:ResetManaBars()
             raidHealers[i][6].manaPercentText = nil
             raidHealers[i][6]:Hide()
             raidHealers[i][6]:SetParent(nil)
+            if raidHealers[i][6].InnervateButton ~= nil then
+                raidHealers[i][6].InnervateButton:SetParent(nil)
+                raidHealers[i][6].InnervateButton = nil
+            end
         end
     end
 
@@ -409,6 +415,37 @@ function  AZP.ManaManagement:ResetManaBars()
         raidHealers[i][6].healerNameText:SetJustifyH("LEFT")
         raidHealers[i][6].healerNameText:SetSize(150, 20)
         raidHealers[i][6]:SetStatusBarColor(0, 0.75, 1)
+
+        raidHealers[i][6].InnervateButton = CreateFrame("Button", nil, raidHealers[i][6], "SecureActionButtonTemplate, BackdropTemplate")
+        raidHealers[i][6].InnervateButton:SetBackdrop({
+                bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+                edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+                edgeSize = 12,
+                insets = { left = 1, right = 1, top = 1, bottom = 1 },
+            })
+        raidHealers[i][6].InnervateButton:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
+
+        raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6]:GetWidth(), raidHealers[i][6]:GetHeight())
+        raidHealers[i][6].InnervateButton:SetPoint(raidHealers[i][6]:GetPoint())
+        raidHealers[i][6].InnervateButton:SetScale(raidHealers[i][6]:GetScale() - 0.49)
+        raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6].InnervateButton:GetWidth(), raidHealers[i][6].InnervateButton:GetHeight() + 3)
+        raidHealers[i][6].InnervateButton:EnableMouse(true)
+        raidHealers[i][6].InnervateButton:SetAttribute("type", "spell")
+        local innervateTarget = AZP.ManaManagement:InnervateHealer(raidHealers[i][1])
+        raidHealers[i][6].InnervateButton:SetAttribute("unit", innervateTarget)
+        local spellName = GetSpellInfo(29166)
+        raidHealers[i][6].InnervateButton:SetAttribute("spell", spellName)
+    end
+end
+
+function AZP.ManaManagement:InnervateHealer(healerName)
+    for i = 1, 40 do
+        if GetRaidRosterInfo(i) ~= nil then
+            local raiderName = GetRaidRosterInfo(i)
+            if healerName == raiderName then
+                return ("raid" .. i)
+            end
+        end
     end
 end
 
