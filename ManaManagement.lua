@@ -13,6 +13,7 @@ local optionHeader = "|cFF00FFFFMana Management|r"
 local AZPManaGementFrame, ManaManagementSelfFrame
 local UpdateFrame = nil
 local HaveShowedUpdateNotification = false
+local innervateFrame
 
 function AZP.ManaManagement:OnLoadBoth(mainFrame)
     -- Default scale, 1.
@@ -216,6 +217,78 @@ function AZP.ManaManagement:CreateSelfMainFrame()
     IUAddonFrameCloseButton:SetScript("OnClick", function() AZP.ManaManagement:ShowHideFrame() end )
 end
 
+function AZP.ManaManagement:CreateInnervateList()
+    print("Creating innervate buttons")
+    innervateFrame = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
+    innervateFrame:SetSize(110, 30 + 30 * #raidHealers)
+    innervateFrame:SetPoint("CENTER", 0, 0)
+    innervateFrame:SetScript("OnDragStart", innervateFrame.StartMoving)
+    innervateFrame:SetScript("OnDragStop", function()
+        innervateFrame:StopMovingOrSizing()
+    end)
+    innervateFrame:RegisterForDrag("LeftButton")
+    innervateFrame:EnableMouse(true)
+    innervateFrame:SetMovable(true)
+    innervateFrame:SetBackdrop({
+        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        edgeSize = 12,
+        insets = { left = 1, right = 1, top = 1, bottom = 1 },
+    })
+    innervateFrame:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
+
+    innervateFrame.healers = {}
+    local spellname = GetSpellInfo(29166)
+    for i=1,#raidHealers do
+        local healerSection = {}
+        innervateFrame.healers[i] = healerSection
+        healerSection.btn = CreateFrame("Button", nil, innervateFrame, "SecureActionButtonTemplate")
+        healerSection.btn:SetText("text")
+        healerSection.btn:SetSize(100, 30)
+        healerSection.btn:SetPoint("TOP", 0, -30 * i)
+        healerSection.btn:SetAttribute("type", "spell")
+        healerSection.btn:SetAttribute("spell", spellname)
+        healerSection.btn:SetAttribute("unit", raidHealers[i][1])
+        healerSection.name = raidHealers[i][1]
+
+        healerSection.btn.manabar = CreateFrame("StatusBar", nil, innervateFrame)
+        healerSection.btn.manabar:SetSize(100, 30)
+        healerSection.btn.manabar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
+        healerSection.btn.manabar:SetMinMaxValues(0, raidHealers[i][4])
+        healerSection.btn.manabar:SetValue(raidHealers[i][3])
+        healerSection.btn.manabar:SetPoint("TOP", 0, -30 * i)
+        healerSection.btn.manabar:SetScale(ManaGementScale)
+        healerSection.btn.manabar.bg = healerSection.btn.manabar:CreateTexture(nil, "BACKGROUND")
+        healerSection.btn.manabar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
+        healerSection.btn.manabar.bg:SetAllPoints(true)
+        healerSection.btn.manabar.bg:SetVertexColor(1, 0, 0)
+        healerSection.btn.manabar.manaPercentText = healerSection.btn.manabar:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+        healerSection.btn.manabar.manaPercentText:SetText(math.floor(raidHealers[i][3]/raidHealers[i][4]*100))
+        healerSection.btn.manabar.manaPercentText:SetPoint("RIGHT", -5, 0)
+        healerSection.btn.manabar.manaPercentText:SetSize(50, 20)
+        healerSection.btn.manabar.healerNameText = healerSection.btn.manabar:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+        healerSection.btn.manabar.healerNameText:SetText(raidHealers[i][1])
+        healerSection.btn.manabar.healerNameText:SetPoint("LEFT", 5, 0)
+        healerSection.btn.manabar.healerNameText:SetJustifyH("LEFT")
+        healerSection.btn.manabar.healerNameText:SetSize(150, 20)
+        healerSection.btn.manabar:SetStatusBarColor(0, 0.75, 1)
+
+        -- raidHealers[i][6].InnervateButton = CreateFrame("Button", nil, raidHealers[i][6], "SecureActionButtonTemplate")
+
+        -- raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6]:GetWidth(), raidHealers[i][6]:GetHeight())
+        -- raidHealers[i][6].InnervateButton:SetPoint(raidHealers[i][6]:GetPoint())
+        -- raidHealers[i][6].InnervateButton:SetScale(raidHealers[i][6]:GetScale() - 0.49)
+        -- raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6].InnervateButton:GetWidth(), raidHealers[i][6].InnervateButton:GetHeight() + 3)
+        -- raidHealers[i][6].InnervateButton:EnableMouse(true)
+        -- raidHealers[i][6].InnervateButton:SetAttribute("type", "spell")
+        -- local innervateTarget = AZP.ManaManagement:GetInnervateTarget(raidHealers[i][1])
+        -- raidHealers[i][6].InnervateButton:SetAttribute("unit", innervateTarget)
+        -- local spellName = GetSpellInfo(29166)
+        -- raidHealers[i][6].InnervateButton:SetAttribute("spell", spellName)
+    end
+end
+
+
 function AZP.ManaManagement:ShowHideFrame()
     if ManaManagementSelfFrame:IsShown() then
         ManaManagementSelfFrame:Hide()
@@ -335,8 +408,10 @@ function AZP.ManaManagement:TrackMana()
     for i=1,#raidHealers do
         raidHealers[i][6]:SetValue(UnitPower(raidHealers[i][5], 0))
         raidHealers[i][6].manaPercentText:SetText(math.floor(UnitPower(raidHealers[i][5], 0)/raidHealers[i][4]*100) .. "%")
-
         raidHealers[i][6].healerNameText:SetTextColor(AZP.ManaManagement:GetClassColor(raidHealers[i][2]))
+        if innervateFrame ~= nil then
+            innervateFrame.healers[i].btn.manabar:SetValue(UnitPower(innervateFrame.healers[i].name, 0))
+        end
     end
 end
 
@@ -353,7 +428,7 @@ function AZP.ManaManagement:OrderManaBars()
 
     for i=1,#raidHealers do
         raidHealers[i][6]:SetPoint("CENTER", 0, -25*i-25)
-        raidHealers[i][6].InnervateButton:SetPoint(raidHealers[i][6]:GetPoint())
+        -- raidHealers[i][6].InnervateButton:SetPoint(raidHealers[i][6]:GetPoint())
     end
 end
 
@@ -373,10 +448,10 @@ function  AZP.ManaManagement:ResetManaBars()
             raidHealers[i][6].manaPercentText = nil
             raidHealers[i][6]:Hide()
             raidHealers[i][6]:SetParent(nil)
-            if raidHealers[i][6].InnervateButton ~= nil then
-                raidHealers[i][6].InnervateButton:SetParent(nil)
-                raidHealers[i][6].InnervateButton = nil
-            end
+            -- if raidHealers[i][6].InnervateButton ~= nil then
+            --     -- raidHealers[i][6].InnervateButton:SetParent(nil)
+            --     raidHealers[i][6].InnervateButton = nil
+            -- end
         end
     end
 
@@ -419,18 +494,18 @@ function  AZP.ManaManagement:ResetManaBars()
         raidHealers[i][6].healerNameText:SetSize(150, 20)
         raidHealers[i][6]:SetStatusBarColor(0, 0.75, 1)
 
-        raidHealers[i][6].InnervateButton = CreateFrame("Button", nil, raidHealers[i][6], "SecureActionButtonTemplate")
+        -- raidHealers[i][6].InnervateButton = CreateFrame("Button", nil, raidHealers[i][6], "SecureActionButtonTemplate")
 
-        raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6]:GetWidth(), raidHealers[i][6]:GetHeight())
-        raidHealers[i][6].InnervateButton:SetPoint(raidHealers[i][6]:GetPoint())
-        raidHealers[i][6].InnervateButton:SetScale(raidHealers[i][6]:GetScale() - 0.49)
-        raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6].InnervateButton:GetWidth(), raidHealers[i][6].InnervateButton:GetHeight() + 3)
-        raidHealers[i][6].InnervateButton:EnableMouse(true)
-        raidHealers[i][6].InnervateButton:SetAttribute("type", "spell")
-        local innervateTarget = AZP.ManaManagement:GetInnervateTarget(raidHealers[i][1])
-        raidHealers[i][6].InnervateButton:SetAttribute("unit", innervateTarget)
-        local spellName = GetSpellInfo(29166)
-        raidHealers[i][6].InnervateButton:SetAttribute("spell", spellName)
+        -- raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6]:GetWidth(), raidHealers[i][6]:GetHeight())
+        -- raidHealers[i][6].InnervateButton:SetPoint(raidHealers[i][6]:GetPoint())
+        -- raidHealers[i][6].InnervateButton:SetScale(raidHealers[i][6]:GetScale() - 0.49)
+        -- raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6].InnervateButton:GetWidth(), raidHealers[i][6].InnervateButton:GetHeight() + 3)
+        -- raidHealers[i][6].InnervateButton:EnableMouse(true)
+        -- raidHealers[i][6].InnervateButton:SetAttribute("type", "spell")
+        -- local innervateTarget = AZP.ManaManagement:GetInnervateTarget(raidHealers[i][1])
+        -- raidHealers[i][6].InnervateButton:SetAttribute("unit", innervateTarget)
+        -- local spellName = GetSpellInfo(29166)
+        -- raidHealers[i][6].InnervateButton:SetAttribute("spell", spellName)
     end
 end
 
@@ -511,3 +586,4 @@ end
 AZP.SlashCommands["mm"] = AZP.SlashCommands["MM"]
 AZP.SlashCommands["mana"] = AZP.SlashCommands["MM"]
 AZP.SlashCommands["mana management"] = AZP.SlashCommands["MM"]
+AZP.SlashCommands["innervater"] = AZP.ManaManagement.CreateInnervateList
