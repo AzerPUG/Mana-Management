@@ -10,6 +10,8 @@ local moveable = false
 local raidHealers
 local bossHealthBar
 local optionHeader = "|cFF00FFFFMana Management|r"
+local ManaGementScaleSlider
+
 local AZPManaGementFrame, ManaManagementSelfFrame
 local UpdateFrame = nil
 local HaveShowedUpdateNotification = false
@@ -249,16 +251,16 @@ function AZP.ManaManagement:eventVariablesLoadedManaBars(...)
 end
 
 function AZP.ManaManagement:FillOptionsPanel(frameToFill)
-    local ManaGementScaleSlider = CreateFrame("SLIDER", "ManaGementScaleSlider", frameToFill, "OptionsSliderTemplate")
+    ManaGementScaleSlider = CreateFrame("SLIDER", nil, frameToFill, "OptionsSliderTemplate")
     ManaGementScaleSlider:SetHeight(20)
     ManaGementScaleSlider:SetWidth(500)
     ManaGementScaleSlider:SetOrientation('HORIZONTAL')
-    ManaGementScaleSlider:SetPoint("TOP", 0, -100)
+    ManaGementScaleSlider:SetPoint("TOP", 25, -100)
     ManaGementScaleSlider:EnableMouse(true)
-    ManaGementScaleSlider.tooltipText = 'Scale for mana bars'
-    ManaGementScaleSliderLow:SetText('small')
-    ManaGementScaleSliderHigh:SetText('big')
-    ManaGementScaleSliderText:SetText('Scale')
+    ManaGementScaleSlider.tooltipText = "Scale for mana bars"
+    ManaGementScaleSlider.MText = ManaGementScaleSlider:CreateFontString("ManaGementScaleSlider", "ARTWORK", "GameFontNormalSmall")
+    ManaGementScaleSlider.MText:SetPoint("TOP", 0, 10)
+    ManaGementScaleSlider.MText:SetText("Scale")
 
     ManaGementScaleSlider:Show()
     ManaGementScaleSlider:SetMinMaxValues(0.5, 2)
