@@ -2,7 +2,7 @@ if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 if AZP.OnLoad == nil then AZP.OnLoad = {} end
 
-AZP.VersionControl["Mana Management"] = 13
+AZP.VersionControl["Mana Management"] = 14
 AZP.ManaManagement = {}
 
 local AZPMMSelfOptionPanel = nil
