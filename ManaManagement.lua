@@ -3,7 +3,8 @@ if AZP.VersionControl == nil then AZP.VersionControl = {} end
 if AZP.OnLoad == nil then AZP.OnLoad = {} end
 
 AZP.VersionControl["Mana Management"] = 14
-AZP.ManaManagement = {}
+if AZP.ManaManagement == nil then AZP.ManaManagement = {} end
+if AZP.ManaManagement.Events == nil then AZP.ManaManagement.Events = {} end
 
 local AZPMMSelfOptionPanel = nil
 local moveable = false
@@ -122,9 +123,9 @@ function AZP.ManaManagement:OnLoadBoth(mainFrame)
 end
 
 function AZP.ManaManagement:OnLoadCore()
-    AZP.Core:RegisterEvents("UNIT_POWER_UPDATE", function(...) AZP.ManaManagement:eventUnitPowerUpdate(...) end)
-    AZP.Core:RegisterEvents("GROUP_ROSTER_UPDATE", function(...) AZP.ManaManagement:eventGroupRosterUpdate(...) end)
-    AZP.Core:RegisterEvents("VARIABLES_LOADED", function(...) AZP.ManaManagement:eventVariablesLoadedManaBars(...) end)
+    AZP.Core:RegisterEvents("UNIT_POWER_UPDATE", function(...) AZP.ManaManagement.Events:UnitPowerUpdate(...) end)
+    AZP.Core:RegisterEvents("GROUP_ROSTER_UPDATE", function(...) AZP.ManaManagement.Events:GroupRosterUpdate(...) end)
+    AZP.Core:RegisterEvents("VARIABLES_LOADED", function(...) AZP.ManaManagement.Events:VariablesLoadedManaBars(...) end)
 
     AZP.ManaManagement:OnLoadBoth(AZP.Core.AddOns.MM.MainFrame)
 
@@ -305,7 +306,7 @@ function AZP.ManaManagement:SaveMainFrameLocation()
     AZPMMLocation = temp
 end
 
-function AZP.ManaManagement:eventVariablesLoaded(...)
+function AZP.ManaManagement.Events:VariablesLoaded(...)
     if AZPMMShown == false then
         ManaManagementSelfFrame:Hide()
     end
@@ -316,7 +317,7 @@ function AZP.ManaManagement:eventVariablesLoaded(...)
     ManaManagementSelfFrame:SetPoint(AZPMMLocation[1], AZPMMLocation[4], AZPMMLocation[5])
 end
 
-function AZP.ManaManagement:eventVariablesLoadedManaBars(...)
+function AZP.ManaManagement.Events:VariablesLoadedManaBars(...)
     bossHealthBar:SetScale(ManaGementScale)
     ManaGementScaleSlider:SetValue(ManaGementScale)
 end
@@ -537,7 +538,7 @@ function AZP.ManaManagement:GetClassColor(classIndex)
     end
 end
 
-function AZP.ManaManagement:eventUnitPowerUpdate(...)
+function AZP.ManaManagement.Events:UnitPowerUpdate(...)
     local unitID, powerID = ...
     if powerID == "MANA" then
         if UnitGroupRolesAssigned(unitID) == "HEALER" then
@@ -547,7 +548,7 @@ function AZP.ManaManagement:eventUnitPowerUpdate(...)
     end
 end
 
-function AZP.ManaManagement:eventChatMsgAddon(...)
+function AZP.ManaManagement.Events:ChatMsgAddon(...)
     local prefix, payload, _, sender = ...
     if prefix == "AZPVERSIONS" then
         local version = AZP.ManaManagement:GetSpecificAddonVersion(payload, "MM")
@@ -557,21 +558,21 @@ function AZP.ManaManagement:eventChatMsgAddon(...)
     end
 end
 
-function AZP.ManaManagement:eventGroupRosterUpdate(...)
+function AZP.ManaManagement.Events:GroupRosterUpdate(...)
     AZP.ManaManagement:ResetManaBars()
     AZP.ManaManagement:ShareVersion()
 end
 
 function AZP.ManaManagement:OnEvent(self, event, ...)
     if event == "UNIT_POWER_UPDATE" then
-        AZP.ManaManagement:eventUnitPowerUpdate(...)
+        AZP.ManaManagement.Events:UnitPowerUpdate(...)
     elseif event == "GROUP_ROSTER_UPDATE" then
-        AZP.ManaManagement:eventGroupRosterUpdate(...)
+        AZP.ManaManagement.Events:GroupRosterUpdate(...)
     elseif event == "CHAT_MSG_ADDON" then
-        AZP.ManaManagement:eventChatMsgAddon(...)
+        AZP.ManaManagement.Events:ChatMsgAddon(...)
     elseif event == "VARIABLES_LOADED" then
-        AZP.ManaManagement:eventVariablesLoaded(...)
-        AZP.ManaManagement:eventVariablesLoadedManaBars(...)
+        AZP.ManaManagement.Events:VariablesLoaded(...)
+        AZP.ManaManagement.Events:VariablesLoadedManaBars(...)
     end
 end
 
