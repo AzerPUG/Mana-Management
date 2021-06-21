@@ -2,7 +2,7 @@ if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 if AZP.OnLoad == nil then AZP.OnLoad = {} end
 
-AZP.VersionControl["Mana Management"] = 14
+AZP.VersionControl["Mana Management"] = 15
 if AZP.ManaManagement == nil then AZP.ManaManagement = {} end
 if AZP.ManaManagement.Events == nil then AZP.ManaManagement.Events = {} end
 
