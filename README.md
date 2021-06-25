@@ -16,7 +16,18 @@
 [![](https://github.com/AzerPUG/AZP-Files/raw/main/Panels/Instagram%20Panel%20Small.png "")](http://www.azerpug.com/instagram "") 
 
 # Description and Features
-AzerPUG's Mana Management adds a mana bar for each healer in your group, to make it easier to track who has what amount of mana. It also adds a boss health bar for the users convenience so you can easily see if you are doing too much or too little.
+AzerPUG's Mana Management adds a mana bar for each healer in your group, to make it easier to track who has what amount of mana. It also adds a boss health bar for the users convenience so you can easily see if you are doing too much or too little. 
+
+# Optional Core
+All AzerPUG AddOns are stand-alone and as lightweight as possible.  
+However, some very resource intensive things with AddOns are really nice to have.  
+In order to provide these extra things, like optimization or combining the AddOns into one bigger one, we have an optinal, combined AddOn.  
+Anyone who uses several of our AddOns, is strongly suggested to use the [AzerPUG's Core](https://www.curseforge.com/wow/addons/azerpugs-core) as well.  
+This Core AddOn will do several things that are considered an imporvement by most people:
+- Speed up loading times
+- Register events more efficiently.
+- Deal with all the event handling for all AzerPUG AddOns.
+- Deal with all the version control for all AzerPUG AddOns.  
 
 # Bugs, Errors, Glitches and Requests.
 If you find any of the above, please do not hesitate to create a GitHub Issue here: https://github.com/AzerPUG/Mana-Management/issues  
