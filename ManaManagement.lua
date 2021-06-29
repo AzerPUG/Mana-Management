@@ -459,7 +459,14 @@ function  AZP.ManaManagement:ResetManaBars()
     raidHealers = {}
 
     for i=1,GetNumGroupMembers() do
-        local raidUnitID = string.format("raid%d", i)
+
+        local raidUnitID
+        if(IsInRaid()) then
+            raidUnitID = string.format("raid%d", i)
+        else if IsInGroup() then
+            raidUnitID = string.format("party%d", i)
+        end
+
         local unitRole = UnitGroupRolesAssigned(raidUnitID)
         if unitRole == "HEALER" then
             local newHealerIndex = #raidHealers + 1
@@ -494,19 +501,6 @@ function  AZP.ManaManagement:ResetManaBars()
         raidHealers[i][6].healerNameText:SetJustifyH("LEFT")
         raidHealers[i][6].healerNameText:SetSize(150, 20)
         raidHealers[i][6]:SetStatusBarColor(0, 0.75, 1)
-
-        -- raidHealers[i][6].InnervateButton = CreateFrame("Button", nil, raidHealers[i][6], "SecureActionButtonTemplate")
-
-        -- raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6]:GetWidth(), raidHealers[i][6]:GetHeight())
-        -- raidHealers[i][6].InnervateButton:SetPoint(raidHealers[i][6]:GetPoint())
-        -- raidHealers[i][6].InnervateButton:SetScale(raidHealers[i][6]:GetScale() - 0.49)
-        -- raidHealers[i][6].InnervateButton:SetSize(raidHealers[i][6].InnervateButton:GetWidth(), raidHealers[i][6].InnervateButton:GetHeight() + 3)
-        -- raidHealers[i][6].InnervateButton:EnableMouse(true)
-        -- raidHealers[i][6].InnervateButton:SetAttribute("type", "spell")
-        -- local innervateTarget = AZP.ManaManagement:GetInnervateTarget(raidHealers[i][1])
-        -- raidHealers[i][6].InnervateButton:SetAttribute("unit", innervateTarget)
-        -- local spellName = GetSpellInfo(29166)
-        -- raidHealers[i][6].InnervateButton:SetAttribute("spell", spellName)
     end
 end
 
