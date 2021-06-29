@@ -458,24 +458,16 @@ function  AZP.ManaManagement:ResetManaBars()
 
     raidHealers = {}
 
-    for i=1,GetNumGroupMembers() do
-
-        local raidUnitID
-        if(IsInRaid()) then
-            raidUnitID = string.format("raid%d", i)
-        else if IsInGroup() then
-            raidUnitID = string.format("party%d", i)
-        end
-
-        local unitRole = UnitGroupRolesAssigned(raidUnitID)
-        if unitRole == "HEALER" then
-            local newHealerIndex = #raidHealers + 1
-            raidHealers[newHealerIndex] = {}
-            raidHealers[newHealerIndex][1] = UnitName(raidUnitID)
-            _, _, raidHealers[newHealerIndex][2] = UnitClass(raidUnitID);
-            raidHealers[newHealerIndex][3] = UnitPower(raidUnitID, 0)
-            raidHealers[newHealerIndex][4] = UnitPowerMax(raidUnitID, 0)
-            raidHealers[newHealerIndex][5] = raidUnitID
+    if IsInGroup() then
+        if IsInRaid() then
+            for i=1,GetNumGroupMembers() do
+                AZP.ManaManagement:AddPlayerIfHealer(string.format("raid%d", i))
+            end
+        else
+            for i=1,GetNumGroupMembers() do
+                AZP.ManaManagement:AddPlayerIfHealer(string.format("party%d", i))
+            end
+            AZP.ManaManagement:AddPlayerIfHealer("player")
         end
     end
 
@@ -504,7 +496,46 @@ function  AZP.ManaManagement:ResetManaBars()
     end
 end
 
+function AZP.ManaManagement:AddPlayerIfHealer(target)
+    local unitRole = UnitGroupRolesAssigned(target)
+    if unitRole == "HEALER" then
+        local newHealerIndex = #raidHealers + 1
+        raidHealers[newHealerIndex] = {}
+        raidHealers[newHealerIndex][1] = UnitName(target)
+        _, _, raidHealers[newHealerIndex][2] = UnitClass(target);
+        raidHealers[newHealerIndex][3] = UnitPower(target, 0)
+        raidHealers[newHealerIndex][4] = UnitPowerMax(target, 0)
+        raidHealers[newHealerIndex][5] = target
+    end
+end
+
 function AZP.ManaManagement:GetInnervateTarget(healerName)
+    local target, targetName
+    if IsInGroup() then
+        if IsInRaid() then
+            for i=1,GetNumGroupMembers() do
+                target = string.format("raid%d", i)
+                targetName = UnitName(target)
+                if healerName == targetName then
+                    return target
+                end
+            end
+        else
+            for i=1,GetNumGroupMembers()-1 do
+                target = string.format("party%d", i)
+                targetName = UnitName(target)
+                if healerName == targetName then
+                    return target
+                end
+            end
+            target = "player"
+            targetName = UnitName(target)
+            if healerName == targetName then
+                return target
+            end
+        end
+    end
+
     for i = 1, 40 do
         if GetRaidRosterInfo(i) ~= nil then
             local raiderName = GetRaidRosterInfo(i)
