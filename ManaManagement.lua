@@ -585,7 +585,9 @@ end
 
 function AZP.ManaManagement.Events:GroupRosterUpdate(...)
     AZP.ManaManagement:ResetManaBars()
-    AZP.ManaManagement:ShareVersion()
+    if not IsAddOnLoaded("AzerPUGsCore") then
+        AZP.ManaManagement:ShareVersion()
+    end
 end
 
 function AZP.ManaManagement:OnEvent(self, event, ...)
