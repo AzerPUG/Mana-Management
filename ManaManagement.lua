@@ -461,7 +461,7 @@ function AZP.ManaManagement:AddPlayerIfHealer(target)
         local newHealerIndex = #raidHealers + 1
         raidHealers[newHealerIndex] = {}
         raidHealers[newHealerIndex][1] = UnitName(target)
-        _, _, raidHealers[newHealerIndex][2] = UnitClass(target);
+        _, _, raidHealers[newHealerIndex][2] = UnitClass(target)
         raidHealers[newHealerIndex][3] = UnitPower(target, 0)
         raidHealers[newHealerIndex][4] = UnitPowerMax(target, 0)
         raidHealers[newHealerIndex][5] = target
