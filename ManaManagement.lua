@@ -252,8 +252,7 @@ function  AZP.ManaManagement:ResetManaBars()
         local healerSection = AZPManaGementFrame.healers[i]
         if healerSection == nil then
             healerSection = {}
-            healer[6] = healerSection
-            healerSection.name = healer[1]
+            
             if AZP.ManaManagement:HasInnervate() then
                 print("Innervate enabled")
                 healerSection.frame = CreateFrame("Button", nil, AZPManaGementFrame, "SecureActionButtonTemplate")
@@ -273,6 +272,9 @@ function  AZP.ManaManagement:ResetManaBars()
             healerSection.frame.manabar.bg = healerSection.frame.manabar:CreateTexture(nil, "BACKGROUND")
             AZPManaGementFrame.healers[i] = healerSection
         end
+
+        healer[6] = healerSection
+        healerSection.name = healer[1]
         healerSection.frame.manabar:SetSize(150, 25)
         healerSection.frame.manabar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
         healerSection.frame.manabar:SetMinMaxValues(0, healer[4])
@@ -283,16 +285,16 @@ function  AZP.ManaManagement:ResetManaBars()
         healerSection.frame.manabar.bg:SetTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
         healerSection.frame.manabar.bg:SetAllPoints(true)
         healerSection.frame.manabar.bg:SetVertexColor(1, 0, 0)
-        healerSection.frame.manabar.manaPercentText = healerSection.frame.manabar:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
         healerSection.frame.manabar.manaPercentText:SetText(math.floor(healer[3]/healer[4]*100))
         healerSection.frame.manabar.manaPercentText:SetPoint("RIGHT", -5, 0)
         healerSection.frame.manabar.manaPercentText:SetSize(50, 20)
-        healerSection.frame.manabar.healerNameText = healerSection.frame.manabar:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
         healerSection.frame.manabar.healerNameText:SetText(healer[1])
         healerSection.frame.manabar.healerNameText:SetPoint("LEFT", 5, 0)
         healerSection.frame.manabar.healerNameText:SetJustifyH("LEFT")
         healerSection.frame.manabar.healerNameText:SetSize(150, 20)
         healerSection.frame.manabar:SetStatusBarColor(0, 0.75, 1)
+        healerSection.frame.manabar:Show()
+        healerSection.frame:Show()
     end
 end
 
@@ -302,6 +304,7 @@ function AZP.ManaManagement:HasInnervate()
     local specID = GetSpecializationInfoForClassID(classIndex, specIndex)
     return tContains(InnervateSpecIDs, specID)
 end
+
 function AZP.ManaManagement:ShowHideFrame()
     if ManaManagementSelfFrame:IsShown() then
         ManaManagementSelfFrame:Hide()
@@ -458,6 +461,7 @@ end
 function AZP.ManaManagement:AddPlayerIfHealer(target)
     local unitRole = UnitGroupRolesAssigned(target)
     if unitRole == "HEALER" then
+        print(target .. " is healer")
         local newHealerIndex = #raidHealers + 1
         raidHealers[newHealerIndex] = {}
         raidHealers[newHealerIndex][1] = UnitName(target)
