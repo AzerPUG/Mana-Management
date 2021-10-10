@@ -121,7 +121,7 @@ function AZP.ManaManagement:OnLoadBoth(mainFrame)
         end
     end)
 
-    -- AZP.ManaManagement:ResetManaBars()
+    AZP.ManaManagement:ResetManaBars()
 end
 
 function AZP.ManaManagement:OnLoadCore()
