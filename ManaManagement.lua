@@ -16,6 +16,7 @@ local UpdateFrame = nil
 local HaveShowedUpdateNotification = false
 local InnervaterFrameEnabled, InnervateFrame = false, nil
 local InnervateSpecIDs = {102, 105}
+local DidHaveInnervate = false
 
 function AZP.ManaManagement:OnLoadBoth(mainFrame)
     -- Default scale, 1.
@@ -128,6 +129,7 @@ function AZP.ManaManagement:OnLoadCore()
     AZP.Core:RegisterEvents("UNIT_POWER_UPDATE", function(...) AZP.ManaManagement.Events:UnitPowerUpdate(...) end)
     AZP.Core:RegisterEvents("GROUP_ROSTER_UPDATE", function(...) AZP.ManaManagement.Events:GroupRosterUpdate(...) end)
     AZP.Core:RegisterEvents("VARIABLES_LOADED", function(...) AZP.ManaManagement.Events:VariablesLoadedManaBars(...) end)
+    AZP.Core:RegisterEvents("PLAYER_SPECIALIZATION_CHANGED", function(...) AZP.ManaManagement.Events:PlayerSpecializationChanged(...) end)
 
     AZP.ManaManagement:OnLoadBoth(AZP.Core.AddOns.MM.MainFrame)
 
@@ -145,6 +147,7 @@ function AZP.ManaManagement:OnLoadSelf()
     EventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
     EventFrame:RegisterEvent("CHAT_MSG_ADDON")
     EventFrame:RegisterEvent("VARIABLES_LOADED")
+    EventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 
     AZPMMSelfOptionPanel = CreateFrame("FRAME", nil)
     AZPMMSelfOptionPanel.name = optionHeader
@@ -220,11 +223,25 @@ function AZP.ManaManagement:CreateSelfMainFrame()
     IUAddonFrameCloseButton:SetScript("OnClick", function() AZP.ManaManagement:ShowHideFrame() end )
 end
 
+function AZP.ManaManagement.Events:PlayerSpecializationChanged(unitID)
+    if unitID == "player" and ((DidHaveInnervate and not AZP.ManaManagement:HasInnervate()) or (not DidHaveInnervate and AZP.ManaManagement:HasInnervate()))  then
+        for _, section in ipairs(AZPManaGementFrame.healers) do
+            print(string.format("Hide healer section with name %s.", section.name))
+            section.frame:Hide()
+            section.frame.manabar:Hide()
+        end
+        AZPManaGementFrame.healers = {} -- Clear the table of healerframes, so we can rebuild it with or without innervate buttons.
+    end
+    AZP.ManaManagement:ResetManaBars()
+end
+
 function  AZP.ManaManagement:ResetManaBars()
     -- Cut off when innervater frame was not requested or during combat.
     if AZP.ManaManagement:HasInnervate() and UnitAffectingCombat("PLAYER") then
         return
     end
+
+    DidHaveInnervate = AZP.ManaManagement:HasInnervate()
     
     raidHealers = {}
 
@@ -440,11 +457,16 @@ function AZP.ManaManagement:OrderManaBars()
         local percentA = math.floor(UnitPower(a[5], 0)/a[4]*100)
         local percentB = math.floor(UnitPower(b[5], 0)/b[4]*100)
 
+        print("PercentA", percentA)
+        print("percentB", percentB)
         return percentA > percentB
     end)
 
     for i,healer in ipairs(raidHealers) do
-        healer[6].frame:SetPoint("CENTER", 0, -25*i-25)
+        local healerFrame = healer[6].frame
+        healerFrame:SetPoint("CENTER", 0, -25*i-25)
+        healerFrame.manabar:SetPoint("CENTER", 0, -25*i-25)
+
         -- healer[6].InnervateButton:SetPoint(healer[6]:GetPoint())
     end
 end
@@ -461,7 +483,6 @@ end
 function AZP.ManaManagement:AddPlayerIfHealer(target)
     local unitRole = UnitGroupRolesAssigned(target)
     if unitRole == "HEALER" then
-        print(target .. " is healer")
         local newHealerIndex = #raidHealers + 1
         raidHealers[newHealerIndex] = {}
         raidHealers[newHealerIndex][1] = UnitName(target)
@@ -531,7 +552,7 @@ function AZP.ManaManagement.Events:UnitPowerUpdate(...)
     if powerID == "MANA" then
         if UnitGroupRolesAssigned(unitID) == "HEALER" then
             AZP.ManaManagement:TrackMana()
-            if not AZP.ManaManagement:HasInnervate() then
+            if AZP.ManaManagement:HasInnervate() == false then
                 AZP.ManaManagement:OrderManaBars()
             end
         end
@@ -565,6 +586,8 @@ function AZP.ManaManagement:OnEvent(self, event, ...)
     elseif event == "VARIABLES_LOADED" then
         AZP.ManaManagement.Events:VariablesLoaded(...)
         AZP.ManaManagement.Events:VariablesLoadedManaBars(...)
+    elseif event == "PLAYER_SPECIALIZATION_CHANGED" then
+        AZP.ManaManagement.Events:PlayerSpecializationChanged(...)
     end
 end
 
