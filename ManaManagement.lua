@@ -2,7 +2,7 @@ if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 if AZP.OnLoad == nil then AZP.OnLoad = {} end
 
-AZP.VersionControl["Mana Management"] = 16
+AZP.VersionControl["Mana Management"] = 17
 if AZP.ManaManagement == nil then AZP.ManaManagement = {} end
 if AZP.ManaManagement.Events == nil then AZP.ManaManagement.Events = {} end
 
@@ -226,7 +226,7 @@ end
 function AZP.ManaManagement.Events:PlayerSpecializationChanged(unitID)
     if unitID == "player" and ((DidHaveInnervate and not AZP.ManaManagement:HasInnervate()) or (not DidHaveInnervate and AZP.ManaManagement:HasInnervate()))  then
         for _, section in ipairs(AZPManaGementFrame.healers) do
-            print(string.format("Hide healer section with name %s.", section.name))
+            --print(string.format("Hide healer section with name %s.", section.name))
             section.frame:Hide()
             section.frame.manabar:Hide()
         end
@@ -246,7 +246,7 @@ function  AZP.ManaManagement:ResetManaBars()
     raidHealers = {}
 
     for _, section in ipairs(AZPManaGementFrame.healers) do
-        print(string.format("Hide healer section with name %s.", section.name))
+        --print(string.format("Hide healer section with name %s.", section.name))
         section.frame:Hide()
         section.frame.manabar:Hide()
     end
