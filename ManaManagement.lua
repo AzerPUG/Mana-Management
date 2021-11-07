@@ -457,8 +457,6 @@ function AZP.ManaManagement:OrderManaBars()
         local percentA = math.floor(UnitPower(a[5], 0)/a[4]*100)
         local percentB = math.floor(UnitPower(b[5], 0)/b[4]*100)
 
-        print("PercentA", percentA)
-        print("percentB", percentB)
         return percentA > percentB
     end)
 
