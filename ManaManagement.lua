@@ -2,7 +2,7 @@ if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 if AZP.OnLoad == nil then AZP.OnLoad = {} end
 
-AZP.VersionControl["Mana Management"] = 17
+AZP.VersionControl["Mana Management"] = 18
 if AZP.ManaManagement == nil then AZP.ManaManagement = {} end
 if AZP.ManaManagement.Events == nil then AZP.ManaManagement.Events = {} end
 
@@ -19,7 +19,6 @@ local InnervateSpecIDs = {102, 105}
 local DidHaveInnervate = false
 
 function AZP.ManaManagement:OnLoadBoth(mainFrame)
-    -- Default scale, 1.
     if ManaGementScale == nil then
         ManaGementScale = 1.0
     end
@@ -226,17 +225,15 @@ end
 function AZP.ManaManagement.Events:PlayerSpecializationChanged(unitID)
     if unitID == "player" and ((DidHaveInnervate and not AZP.ManaManagement:HasInnervate()) or (not DidHaveInnervate and AZP.ManaManagement:HasInnervate()))  then
         for _, section in ipairs(AZPManaGementFrame.healers) do
-            --print(string.format("Hide healer section with name %s.", section.name))
             section.frame:Hide()
             section.frame.manabar:Hide()
         end
-        AZPManaGementFrame.healers = {} -- Clear the table of healerframes, so we can rebuild it with or without innervate buttons.
+        AZPManaGementFrame.healers = {}
     end
     AZP.ManaManagement:ResetManaBars()
 end
 
 function  AZP.ManaManagement:ResetManaBars()
-    -- Cut off when innervater frame was not requested or during combat.
     if AZP.ManaManagement:HasInnervate() and UnitAffectingCombat("PLAYER") then
         return
     end
@@ -246,7 +243,6 @@ function  AZP.ManaManagement:ResetManaBars()
     raidHealers = {}
 
     for _, section in ipairs(AZPManaGementFrame.healers) do
-        --print(string.format("Hide healer section with name %s.", section.name))
         section.frame:Hide()
         section.frame.manabar:Hide()
     end
@@ -269,9 +265,8 @@ function  AZP.ManaManagement:ResetManaBars()
         local healerSection = AZPManaGementFrame.healers[i]
         if healerSection == nil then
             healerSection = {}
-            
+
             if AZP.ManaManagement:HasInnervate() then
-                print("Innervate enabled")
                 healerSection.frame = CreateFrame("Button", nil, AZPManaGementFrame, "SecureActionButtonTemplate")
                 healerSection.frame:SetSize(150, 25)
                 healerSection.frame:SetPoint("CENTER", 0, -25*i-25)
@@ -280,7 +275,6 @@ function  AZP.ManaManagement:ResetManaBars()
                 healerSection.frame:SetAttribute("unit", healer[1])
                 healerSection.frame:SetScale(ManaGementScale)
             else
-                print("Innervate disabled")
                 healerSection.frame = CreateFrame("Frame", nil, AZPManaGementFrame)
             end
             healerSection.frame.manabar = CreateFrame("StatusBar", nil, AZPManaGementFrame)
