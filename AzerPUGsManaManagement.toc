@@ -4,7 +4,7 @@
 ## OptionalDeps: AzerPUGsCore
 ## Notes: Utility for Instances (Raids and Dungeons)!
 ## Version: SL 9.1 (For actual addon version, check ManaManagement.lua)
-## SavedVariables: ManaGementLocation, ManaGementScale, AZPMMLocation, AZPMMShown
+## SavedVariables: ManaGementLocation, ManaGementScale, AZPMMLocation, AZPMMShown, AZPMMVars
 
 SlashCommands.lua
 ManaManagement.lua

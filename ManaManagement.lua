@@ -11,14 +11,15 @@ local moveable = false
 local raidHealers
 local bossHealthBar
 local optionHeader = "|cFF00FFFFMana Management|r"
-local AZPManaGementFrame, ManaManagementSelfFrame
+local AZPManaGementFrame
 local UpdateFrame = nil
 local HaveShowedUpdateNotification = false
 local InnervaterFrameEnabled, InnervateFrame = false, nil
 local InnervateSpecIDs = {102, 105}
 local DidHaveInnervate = false
-
-function AZP.ManaManagement:OnLoadBoth(mainFrame)
+local allFrames = {}
+local OptionsFrame = nil
+function AZP.ManaManagement:OnLoadBoth()
     if ManaGementScale == nil then
         ManaGementScale = 1.0
     end
@@ -56,72 +57,9 @@ function AZP.ManaManagement:OnLoadBoth(mainFrame)
     bossHealthBar.bossNameText:SetSize(150, 20)
     bossHealthBar:SetStatusBarColor(0, 0.75, 1)
     bossHealthBar:SetScale(ManaGementScale)
-
-    local AZPMGShowHideButton = CreateFrame("Button", nil, mainFrame, "UIPanelButtonTemplate")
-    AZPMGShowHideButton.contentText = AZPMGShowHideButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    AZPMGShowHideButton:SetWidth("100")
-    AZPMGShowHideButton:SetHeight("25")
-    AZPMGShowHideButton.contentText:SetWidth("100")
-    AZPMGShowHideButton.contentText:SetHeight("15")
-    AZPMGShowHideButton:SetPoint("TOPLEFT", 5, -5)
-    AZPMGShowHideButton.contentText:SetPoint("CENTER", 0, -1)
-    AZPMGShowHideButton:SetScript("OnClick", function()
-        if AZPManaGementFrame:IsShown() then
-            AZPManaGementFrame:Hide()
-            AZPMGShowHideButton.contentText:SetText("Show")
-        else
-            AZPManaGementFrame:Show()
-            AZPMGShowHideButton.contentText:SetText("Hide")
-        end
-    end )
-
-    if AZPManaGementFrame:IsShown() then
-        AZPMGShowHideButton.contentText:SetText("Hide")
-    else
-        AZPMGShowHideButton.contentText:SetText("Show")
-    end
-
-    local AZPMGToggleMoveButton = CreateFrame("Button", nil, mainFrame, "UIPanelButtonTemplate")
-    AZPMGToggleMoveButton.contentText = AZPMGToggleMoveButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    AZPMGToggleMoveButton.contentText:SetText("Toggle Movement!")
-    AZPMGToggleMoveButton:SetWidth("100")
-    AZPMGToggleMoveButton:SetHeight("25")
-    AZPMGToggleMoveButton.contentText:SetWidth("100")
-    AZPMGToggleMoveButton.contentText:SetHeight("15")
-    AZPMGToggleMoveButton:SetPoint("TOPLEFT", 5, -30)
-    AZPMGToggleMoveButton.contentText:SetPoint("CENTER", 0, -1)
-    AZPMGToggleMoveButton:SetScript("OnClick",
-    function()
-        if moveable == false then
-            AZPManaGementFrame:SetMovable(true)
-            AZPManaGementFrame:EnableMouse(true)
-            AZPManaGementFrame:RegisterForDrag("LeftButton")
-            AZPManaGementFrame:SetBackdrop({
-                bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-                edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-                edgeSize = 12,
-                insets = { left = 1, right = 1, top = 1, bottom = 1 },
-            })
-            AZPManaGementFrame:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
-            moveable = true
-        else
-            AZPManaGementFrame:SetMovable(false)
-            AZPManaGementFrame:EnableMouse(false)
-            AZPManaGementFrame:RegisterForDrag()
-            AZPManaGementFrame:SetBackdrop({
-                bgFile = nil,
-                edgeFile = nil,
-                edgeSize = nil,
-                insets = { left = 1, right = 1, top = 1, bottom = 1 },
-            })
-            AZPManaGementFrame:SetBackdropColor(0, 0, 0, 0)
-            local x1, x2, x3, x4, x5 = AZPManaGementFrame:GetPoint()
-            ManaGementLocation = {x1, x4, x5}
-            moveable = false
-        end
-    end)
-
+    table.insert(allFrames, bossHealthBar)
     AZP.ManaManagement:ResetManaBars()
+    AZP.ManaManagement:CreateCustomOptionFrame()
 end
 
 function AZP.ManaManagement:OnLoadCore()
@@ -130,7 +68,7 @@ function AZP.ManaManagement:OnLoadCore()
     AZP.Core:RegisterEvents("VARIABLES_LOADED", function(...) AZP.ManaManagement.Events:VariablesLoadedManaBars(...) end)
     AZP.Core:RegisterEvents("PLAYER_SPECIALIZATION_CHANGED", function(...) AZP.ManaManagement.Events:PlayerSpecializationChanged(...) end)
 
-    AZP.ManaManagement:OnLoadBoth(AZP.Core.AddOns.MM.MainFrame)
+    AZP.ManaManagement:OnLoadBoth()
 
     AZP.OptionsPanels:RemovePanel("Mana Management")
     AZP.OptionsPanels:Generic("Mana Management", optionHeader, function (frame)
@@ -190,36 +128,138 @@ function AZP.ManaManagement:OnLoadSelf()
     UpdateFrameCloseButton:SetPoint("TOPRIGHT", UpdateFrame, "TOPRIGHT", 2, 2)
     UpdateFrameCloseButton:SetScript("OnClick", function() UpdateFrame:Hide() end )
 
-    AZP.ManaManagement:CreateSelfMainFrame()
-    AZP.ManaManagement:OnLoadBoth(ManaManagementSelfFrame)
+    AZP.ManaManagement:OnLoadBoth()
     AZP.ManaManagement:FillOptionsPanel(AZPMMSelfOptionPanel)
-
 end
 
-function AZP.ManaManagement:CreateSelfMainFrame()
-    ManaManagementSelfFrame = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
-    ManaManagementSelfFrame:SetSize(110, 65)
-    ManaManagementSelfFrame:SetPoint("CENTER", 0, 0)
-    ManaManagementSelfFrame:SetScript("OnDragStart", ManaManagementSelfFrame.StartMoving)
-    ManaManagementSelfFrame:SetScript("OnDragStop", function()
-        ManaManagementSelfFrame:StopMovingOrSizing()
-        AZP.ManaManagement:SaveMainFrameLocation()
-    end)
-    ManaManagementSelfFrame:RegisterForDrag("LeftButton")
-    ManaManagementSelfFrame:EnableMouse(true)
-    ManaManagementSelfFrame:SetMovable(true)
-    ManaManagementSelfFrame:SetBackdrop({
+function AZP.ManaManagement:CreateCustomOptionFrame()
+    OptionsFrame = CreateFrame("FRAME", nil, UIParent, "BackdropTemplate")
+    OptionsFrame:SetSize(300, 125)
+    OptionsFrame:SetPoint("CENTER", 0, 0)
+    OptionsFrame:EnableMouse(true)
+    OptionsFrame:SetMovable(true)
+    OptionsFrame:RegisterForDrag("LeftButton")
+    OptionsFrame:SetScript("OnDragStart", OptionsFrame.StartMoving)
+    OptionsFrame:SetScript("OnDragStop", function() OptionsFrame:StopMovingOrSizing() end)
+    OptionsFrame:SetBackdrop({
         bgFile = "Interface/Tooltips/UI-Tooltip-Background",
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         edgeSize = 12,
         insets = { left = 1, right = 1, top = 1, bottom = 1 },
     })
-    ManaManagementSelfFrame:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
+    OptionsFrame:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
 
-    local IUAddonFrameCloseButton = CreateFrame("Button", nil, ManaManagementSelfFrame, "UIPanelCloseButton")
-    IUAddonFrameCloseButton:SetSize(20, 21)
-    IUAddonFrameCloseButton:SetPoint("TOPRIGHT", ManaManagementSelfFrame, "TOPRIGHT", 2, 2)
-    IUAddonFrameCloseButton:SetScript("OnClick", function() AZP.ManaManagement:ShowHideFrame() end )
+    OptionsFrame.Header = OptionsFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
+    OptionsFrame.Header:SetSize(OptionsFrame:GetWidth(), 25)
+    OptionsFrame.Header:SetPoint("TOP", 0, -5)
+    OptionsFrame.Header:SetText(string.format("AzerPUG's Mana Management v%s", AZP.VersionControl["Mana Management"]))
+
+    OptionsFrame.SubHeader = OptionsFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    OptionsFrame.SubHeader:SetSize(OptionsFrame:GetWidth(), 16)
+    OptionsFrame.SubHeader:SetPoint("TOP", OptionsFrame.Header, "BOTTOM", 0, 0)
+    OptionsFrame.SubHeader:SetText("Options Panel")
+
+    OptionsFrame.CloseButton = CreateFrame("Button", nil, OptionsFrame, "UIPanelCloseButton")
+    OptionsFrame.CloseButton:SetSize(20, 21)
+    OptionsFrame.CloseButton:SetPoint("TOPRIGHT", OptionsFrame, "TOPRIGHT", 2, 2)
+    OptionsFrame.CloseButton:SetScript("OnClick", function() OptionsFrame:Hide() end)
+
+    OptionsFrame.BGColorButton = CreateFrame("Button", nil, OptionsFrame, "UIPanelButtonTemplate")
+    OptionsFrame.BGColorButton:SetSize(75, 20)
+    OptionsFrame.BGColorButton:SetPoint("CENTER", 0, 0)
+    OptionsFrame.BGColorButton:SetText("BG Color")
+    OptionsFrame.BGColorButton:SetScript("OnClick", function() AZP.ManaManagement:ColorPickerMain(allFrames, "BG") end)
+    ColorPickerOkayButton:HookScript("OnClick", function() AZP.ManaManagement:ColorSave() end)
+
+
+    OptionsFrame.AZPMGShowHideButton = CreateFrame("Button", nil, OptionsFrame, "UIPanelButtonTemplate")
+    OptionsFrame.AZPMGShowHideButton.contentText = OptionsFrame.AZPMGShowHideButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    OptionsFrame.AZPMGShowHideButton:SetWidth("100")
+    OptionsFrame.AZPMGShowHideButton:SetHeight("25")
+    OptionsFrame.AZPMGShowHideButton.contentText:SetWidth("100")
+    OptionsFrame.AZPMGShowHideButton.contentText:SetHeight("15")
+    OptionsFrame.AZPMGShowHideButton:SetPoint("RIGHT", OptionsFrame.BGColorButton, "LEFT", -5, 0)
+    OptionsFrame.AZPMGShowHideButton.contentText:SetPoint("CENTER", 0, -1)
+    OptionsFrame.AZPMGShowHideButton:SetScript("OnClick", function()
+        if AZPManaGementFrame:IsShown() then
+            AZPManaGementFrame:Hide()
+            OptionsFrame.AZPMGShowHideButton.contentText:SetText("Show")
+        else
+            AZPManaGementFrame:Show()
+            OptionsFrame.AZPMGShowHideButton.contentText:SetText("Hide")
+        end
+    end )
+
+    if AZPManaGementFrame:IsShown() then
+        OptionsFrame.AZPMGShowHideButton.contentText:SetText("Hide")
+    else
+        OptionsFrame.AZPMGShowHideButton.contentText:SetText("Show")
+    end
+
+    OptionsFrame.AZPMGToggleMoveButton = CreateFrame("Button", nil, OptionsFrame, "UIPanelButtonTemplate")
+    OptionsFrame.AZPMGToggleMoveButton.contentText = OptionsFrame.AZPMGToggleMoveButton:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    OptionsFrame.AZPMGToggleMoveButton.contentText:SetText("Toggle Movement!")
+    OptionsFrame.AZPMGToggleMoveButton:SetWidth("100")
+    OptionsFrame.AZPMGToggleMoveButton:SetHeight("25")
+    OptionsFrame.AZPMGToggleMoveButton.contentText:SetWidth("100")
+    OptionsFrame.AZPMGToggleMoveButton.contentText:SetHeight("15")
+    OptionsFrame.AZPMGToggleMoveButton:SetPoint("LEFT", OptionsFrame.BGColorButton, "RIGHT", 5, 0)
+    OptionsFrame.AZPMGToggleMoveButton.contentText:SetPoint("CENTER", 0, -1)
+    OptionsFrame.AZPMGToggleMoveButton:SetScript("OnClick",
+    function()
+        if moveable == false then
+            AZPManaGementFrame:SetMovable(true)
+            AZPManaGementFrame:EnableMouse(true)
+            AZPManaGementFrame:RegisterForDrag("LeftButton")
+            AZPManaGementFrame:SetBackdrop({
+                bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+                edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+                edgeSize = 12,
+                insets = { left = 1, right = 1, top = 1, bottom = 1 },
+            })
+            AZPManaGementFrame:SetBackdropColor(0.5, 0.5, 0.5, 0.75)
+            moveable = true
+        else
+            AZPManaGementFrame:SetMovable(false)
+            AZPManaGementFrame:EnableMouse(false)
+            AZPManaGementFrame:RegisterForDrag()
+            AZPManaGementFrame:SetBackdrop({
+                bgFile = nil,
+                edgeFile = nil,
+                edgeSize = nil,
+                insets = { left = 1, right = 1, top = 1, bottom = 1 },
+            })
+            AZPManaGementFrame:SetBackdropColor(0, 0, 0, 0)
+            local x1, x2, x3, x4, x5 = AZPManaGementFrame:GetPoint()
+            ManaGementLocation = {x1, x4, x5}
+            moveable = false
+        end
+    end)
+
+
+    OptionsFrame.ManaGementScaleSlider = CreateFrame("SLIDER", "ManaGementScaleSlider", OptionsFrame, "OptionsSliderTemplate")
+    OptionsFrame.ManaGementScaleSlider:SetHeight(20)
+    OptionsFrame.ManaGementScaleSlider:SetWidth(200)
+    OptionsFrame.ManaGementScaleSlider:SetOrientation('HORIZONTAL')
+    OptionsFrame.ManaGementScaleSlider:SetPoint("TOP", OptionsFrame.BGColorButton, "BOTTOM", 0, -20)
+    OptionsFrame.ManaGementScaleSlider:EnableMouse(true)
+    OptionsFrame.ManaGementScaleSlider.tooltipText = 'Scale for mana bars'
+    ManaGementScaleSliderLow:SetText('small')
+    ManaGementScaleSliderHigh:SetText('big')
+    ManaGementScaleSliderText:SetText('Scale')
+
+    OptionsFrame.ManaGementScaleSlider:Show()
+    OptionsFrame.ManaGementScaleSlider:SetMinMaxValues(0.5, 2)
+    OptionsFrame.ManaGementScaleSlider:SetValueStep(0.1)
+
+    OptionsFrame.ManaGementScaleSlider:SetScript("OnValueChanged", AZP.ManaManagement.setScale)
+
+    -- OptionsFrame.TextColorButton = CreateFrame("Button", nil, OptionsFrame, "UIPanelButtonTemplate")
+    -- OptionsFrame.TextColorButton:SetSize(75, 20)
+    -- OptionsFrame.TextColorButton:SetPoint("LEFT", OptionsFrame.BorderColorButton, "RIGHT", 5, 0)
+    -- OptionsFrame.TextColorButton:SetText("Text Color")
+    -- OptionsFrame.TextColorButton:SetScript("OnClick", function() AZPMMColorPickerMain(allTextParts, "Text") end)
+    OptionsFrame:Hide()
 end
 
 function AZP.ManaManagement.Events:PlayerSpecializationChanged(unitID)
@@ -239,7 +279,7 @@ function  AZP.ManaManagement:ResetManaBars()
     end
 
     DidHaveInnervate = AZP.ManaManagement:HasInnervate()
-    
+
     raidHealers = {}
 
     for _, section in ipairs(AZPManaGementFrame.healers) do
@@ -282,6 +322,7 @@ function  AZP.ManaManagement:ResetManaBars()
             healerSection.frame.manabar.healerNameText = healerSection.frame.manabar:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
             healerSection.frame.manabar.bg = healerSection.frame.manabar:CreateTexture(nil, "BACKGROUND")
             AZPManaGementFrame.healers[i] = healerSection
+            table.insert(allFrames, healerSection.frame.manabar)
         end
 
         healer[6] = healerSection
@@ -316,31 +357,14 @@ function AZP.ManaManagement:HasInnervate()
     return tContains(InnervateSpecIDs, specID)
 end
 
-function AZP.ManaManagement:ShowHideFrame()
-    if ManaManagementSelfFrame:IsShown() then
-        ManaManagementSelfFrame:Hide()
-        AZPMMShown = false
-    elseif not ManaManagementSelfFrame:IsShown() then
-        ManaManagementSelfFrame:Show()
-        AZPMMShown = true
-    end
-end
-
-function AZP.ManaManagement:SaveMainFrameLocation()
-    local temp = {}
-    temp[1], temp[2], temp[3], temp[4], temp[5] = ManaManagementSelfFrame:GetPoint()
-    AZPMMLocation = temp
-end
-
 function AZP.ManaManagement.Events:VariablesLoaded(...)
-    if AZPMMShown == false then
-        ManaManagementSelfFrame:Hide()
-    end
+    if AZPMMVars == nil then AZPMMVars = {} end
 
     if AZPMMLocation == nil then
         AZPMMLocation = {"CENTER", nil, nil, 200, 0}
     end
-    ManaManagementSelfFrame:SetPoint(AZPMMLocation[1], AZPMMLocation[4], AZPMMLocation[5])
+    AZPManaGementFrame:SetPoint(ManaGementLocation[1], ManaGementLocation[2], ManaGementLocation[3])
+    AZP.ManaManagement:ColorLoad()
     AZP.ManaManagement:ResetManaBars()
 
 end
@@ -351,22 +375,11 @@ function AZP.ManaManagement.Events:VariablesLoadedManaBars(...)
 end
 
 function AZP.ManaManagement:FillOptionsPanel(frameToFill)
-    local ManaGementScaleSlider = CreateFrame("SLIDER", "ManaGementScaleSlider", frameToFill, "OptionsSliderTemplate")
-    ManaGementScaleSlider:SetHeight(20)
-    ManaGementScaleSlider:SetWidth(500)
-    ManaGementScaleSlider:SetOrientation('HORIZONTAL')
-    ManaGementScaleSlider:SetPoint("TOP", 0, -100)
-    ManaGementScaleSlider:EnableMouse(true)
-    ManaGementScaleSlider.tooltipText = 'Scale for mana bars'
-    ManaGementScaleSliderLow:SetText('small')
-    ManaGementScaleSliderHigh:SetText('big')
-    ManaGementScaleSliderText:SetText('Scale')
-
-    ManaGementScaleSlider:Show()
-    ManaGementScaleSlider:SetMinMaxValues(0.5, 2)
-    ManaGementScaleSlider:SetValueStep(0.1)
-
-    ManaGementScaleSlider:SetScript("OnValueChanged", AZP.ManaManagement.setScale)
+    frameToFill.BGColorButton = CreateFrame("Button", nil, frameToFill, "UIPanelButtonTemplate")
+    frameToFill.BGColorButton:SetSize(75, 20)
+    frameToFill.BGColorButton:SetPoint("CENTER", 0, 0)
+    frameToFill.BGColorButton:SetText("Configure")
+    frameToFill.BGColorButton:SetScript("OnClick", function() OptionsFrame:Show() InterfaceOptionsFrame:Hide() end)
 
     frameToFill:Hide()
 end
@@ -568,6 +581,60 @@ function AZP.ManaManagement.Events:GroupRosterUpdate(...)
     end
 end
 
+
+function AZP.ManaManagement:ColorPickerMain(Frames, Component)
+    ColorPickerFrameInUse = Component
+    local r, g, b, a = nil, nil, nil, nil
+        if Component == "BG" then r, g, b, a = Frames[1]:GetStatusBarColor()
+    elseif Component == "Text" then r, g, b, a = Frames[1]:GetTextColor() end
+    ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = (a ~= nil), a
+    ColorPickerFrame.previousValues = {r,g,b,a}
+    ColorPickerFrame:SetColorRGB(r,g,b)
+
+    ColorPickerFrame.func = function() AZP.ManaManagement:ColorPickerAcceptFunction(Frames, Component) end
+    ColorPickerFrame.opacityFunc = ColorPickerFrame.func
+    ColorPickerFrame.cancelFunc = function(prev) AZP.ManaManagement:ColorPickerCancelFunction(Frames, Component, prev) end
+
+    ColorPickerFrame:Hide()
+    ColorPickerFrame:Show()
+end
+
+
+function AZP.ManaManagement:ColorLoad()
+    if AZPMMVars.BG ~= nil then
+        AZP.ManaManagement:SetColorForFrames(allFrames, AZPMMVars.BG, "BG")
+    end
+end
+
+function AZP.ManaManagement:ColorSave()
+    if ColorPickerFrameInUse ~= nil then
+        local r, g, b = ColorPickerFrame:GetColorRGB()
+        local a = OpacitySliderFrame:GetValue()
+        AZPMMVars[ColorPickerFrameInUse] = {r, g, b, a}
+        ColorPickerFrameInUse = nil
+    end
+end
+
+function AZP.ManaManagement:ColorPickerAcceptFunction(Frames, Component)
+    local r, g, b = ColorPickerFrame:GetColorRGB()
+    local a = OpacitySliderFrame:GetValue()
+    AZP.ManaManagement:SetColorForFrames(Frames, {r, g, b, a}, Component)
+end
+
+function AZP.ManaManagement:ColorPickerCancelFunction(Frames, Component, prev)
+    ColorPickerFrameInUse = nil
+    AZP.ManaManagement:SetColorForFrames(Frames, prev, Component)
+end
+
+function AZP.ManaManagement:SetColorForFrames(Frames, Color, Component)
+    local r, g, b, a = unpack(Color)
+    for _, curFrame in pairs(Frames) do
+        if Component == "BG" then curFrame:SetStatusBarColor(r, g, b)
+    elseif Component == "Text" then curFrame:SetTextColor(r, g, b, a) end
+    end
+end
+
+
 function AZP.ManaManagement:OnEvent(self, event, ...)
     if event == "UNIT_POWER_UPDATE" then
         AZP.ManaManagement.Events:UnitPowerUpdate(...)
@@ -588,7 +655,7 @@ if not IsAddOnLoaded("AzerPUGsCore") then
 end
 
 AZP.SlashCommands["MM"] = function()
-    if ManaManagementSelfFrame ~= nil then AZP.ManaManagement:ShowHideFrame() end
+    OptionsFrame:Show()
 end
 
 AZP.SlashCommands["mm"] = AZP.SlashCommands["MM"]
