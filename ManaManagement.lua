@@ -2,7 +2,7 @@ if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 if AZP.OnLoad == nil then AZP.OnLoad = {} end
 
-AZP.VersionControl["Mana Management"] = 20
+AZP.VersionControl["Mana Management"] = 21
 if AZP.ManaManagement == nil then AZP.ManaManagement = {} end
 if AZP.ManaManagement.Events == nil then AZP.ManaManagement.Events = {} end
 
@@ -289,11 +289,11 @@ function  AZP.ManaManagement:ResetManaBars()
 
     if IsInGroup() then
         if IsInRaid() then
-            for i=1,GetNumGroupMembers() do
+            for i=1, GetNumGroupMembers() do
                 AZP.ManaManagement:AddPlayerIfHealer(string.format("raid%d", i))
             end
         else
-            for i=1,GetNumGroupMembers() do
+            for i=1, GetNumGroupMembers() do
                 AZP.ManaManagement:AddPlayerIfHealer(string.format("party%d", i))
             end
             AZP.ManaManagement:AddPlayerIfHealer("player")
@@ -535,7 +535,7 @@ function AZP.ManaManagement:GetInnervateTarget(healerName)
     end
 end
 
-function AZP.ManaManagement:GetClassColor(classIndex)
+function AZP.ManaManagement:GetClassColor(classIndex)       -- https://wowpedia.fandom.com/wiki/API_GetClassColor
     if classIndex ==  0 then return 0.00, 0.00, 0.00          -- None
     elseif classIndex ==  1 then return 0.78, 0.61, 0.43      -- Warrior
     elseif classIndex ==  2 then return 0.96, 0.55, 0.73      -- Paladin
@@ -581,7 +581,6 @@ function AZP.ManaManagement.Events:GroupRosterUpdate(...)
     end
 end
 
-
 function AZP.ManaManagement:ColorPickerMain(Frames, Component)
     ColorPickerFrameInUse = Component
     local r, g, b, a = nil, nil, nil, nil
@@ -598,7 +597,6 @@ function AZP.ManaManagement:ColorPickerMain(Frames, Component)
     ColorPickerFrame:Hide()
     ColorPickerFrame:Show()
 end
-
 
 function AZP.ManaManagement:ColorLoad()
     if AZPMMVars.BG ~= nil then
