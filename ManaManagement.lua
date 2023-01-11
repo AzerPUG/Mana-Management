@@ -2,7 +2,7 @@ if AZP == nil then AZP = {} end
 if AZP.VersionControl == nil then AZP.VersionControl = {} end
 if AZP.OnLoad == nil then AZP.OnLoad = {} end
 
-AZP.VersionControl["Mana Management"] = 22
+AZP.VersionControl["Mana Management"] = 23
 if AZP.ManaManagement == nil then AZP.ManaManagement = {} end
 if AZP.ManaManagement.Events == nil then AZP.ManaManagement.Events = {} end
 
@@ -535,8 +535,8 @@ function AZP.ManaManagement:GetInnervateTarget(healerName)
     end
 end
 
-function AZP.ManaManagement:GetClassColor(classIndex)       -- https://wowpedia.fandom.com/wiki/API_GetClassColor
-    if classIndex ==  0 then return 0.00, 0.00, 0.00          -- None
+function AZP.ManaManagement:GetClassColor(classIndex)         -- https://wowpedia.fandom.com/wiki/API_GetClassColor
+        if classIndex ==  0 then return 0.00, 0.00, 0.00      -- None
     elseif classIndex ==  1 then return 0.78, 0.61, 0.43      -- Warrior
     elseif classIndex ==  2 then return 0.96, 0.55, 0.73      -- Paladin
     elseif classIndex ==  3 then return 0.67, 0.83, 0.45      -- Hunter
@@ -549,6 +549,7 @@ function AZP.ManaManagement:GetClassColor(classIndex)       -- https://wowpedia.
     elseif classIndex == 10 then return 0.00, 1.00, 0.60      -- Monk
     elseif classIndex == 11 then return 1.00, 0.49, 0.04      -- Druid
     elseif classIndex == 12 then return 0.64, 0.19, 0.79      -- Demon Hunter
+    elseif classIndex == 13 then return 0.20, 0.58, 0.50      -- Evoker
     end
 end
 
