@@ -236,7 +236,6 @@ function AZP.ManaManagement:CreateCustomOptionFrame()
         end
     end)
 
-
     OptionsFrame.ManaGementScaleSlider = CreateFrame("SLIDER", "ManaGementScaleSlider", OptionsFrame, "OptionsSliderTemplate")
     OptionsFrame.ManaGementScaleSlider:SetHeight(20)
     OptionsFrame.ManaGementScaleSlider:SetWidth(200)
@@ -476,7 +475,7 @@ function AZP.ManaManagement:OrderManaBars()
     end
 end
 
-function  AZP.ManaManagement:setScale(scale)
+function AZP.ManaManagement:setScale(scale)
     ManaGementScale = scale
     for _,healerSection in ipairs(AZPManaGementFrame.healers) do
         healerSection.frame:SetScale(scale)
